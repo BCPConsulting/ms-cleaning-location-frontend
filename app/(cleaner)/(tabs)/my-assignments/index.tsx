@@ -28,9 +28,9 @@ export default function MyAssigmenetScreen() {
 	const { UpdateCoordinates } = useUpdateCoordinates();
 	const { GetCurrentLocation } = useGetCurrentLocation();
 
-	console.log('Reender');
-
 	const keyExtractor = useCallback((item: { id: number }) => item.id.toString(), []);
+
+	console.log('ListAssignmentsCleaner', JSON.stringify(ListAssignmentsCleaner.data?.data, null, 2));
 
 	const renderItem = useCallback(({ item }: { item: AssignmentAdminResponse }) => {
 		return (
@@ -55,6 +55,16 @@ export default function MyAssigmenetScreen() {
 						</View>
 
 						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
+							<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
+						</View>
+
+						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Celular:</CustomText>
+							<CustomText className='text-neutral-100'>{item.cel}</CustomText>
+						</View>
+
+						<View className='mb-3'>
 							<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
 							<CustomText className='text-neutral-100'>{item.detail}</CustomText>
 						</View>
@@ -73,9 +83,15 @@ export default function MyAssigmenetScreen() {
 										id: item.id,
 										dateTime: item.dateTime.toString(),
 										assignmentStatus: item.assignmentStatus,
-										cleanerId: item.cleanerId,
+										cleanerId: item.cleanner?.id,
 										detail: item.detail,
+										price: item.price,
 										cleaningStatus: item.cleaningStatus,
+										clientName: item.clientName,
+										locationReference: item.locationReference,
+										locationName: item.locationName,
+										coordinates: item.coordinates,
+										cel: item.cel,
 									},
 								})
 							}

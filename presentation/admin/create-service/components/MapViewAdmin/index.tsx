@@ -1,6 +1,7 @@
 import Button from '@/components/ui/button';
 import { CustomText } from '@/components/ui/custom-text';
 import { Spinner } from '@/components/ui/spinner';
+import { Appointment, AssignmentAdminResponse } from '@/core/appointment/interfaces';
 import { useListAssignmentsAdmin } from '@/presentation/appoinment/hooks/use-list-assignments-admin';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
 import { formatISOToDate } from '@/utils/format-iso-to-date';
@@ -18,9 +19,10 @@ interface Props {
 	currentCoordinates: LatLng;
 	handleSetCoordinates: (latitude: number, longitude: number) => void;
 	mapRef: React.RefObject<MapView | null>;
+	openBottomSheetDetails: (appoinment: AssignmentAdminResponse) => void;
 }
 
-const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }: Props) => {
+const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
 	const defaultDate = useMemo(() => new Date(), []);
 	const { ListAssignmentsAdmin } = useListAssignmentsAdmin({
 		from: defaultDate,
@@ -86,7 +88,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }:
 				}}
 				showsUserLocation={true}
 				provider={PROVIDER_GOOGLE}
-				showsMyLocationButton={true}
+				// showsMyLocationButton={true}
 				ref={mapRef}
 				onRegionChangeComplete={(region) => onRegionChangeComplete(region)}>
 				{GetCleaners.data?.data.map((cleaner) => (
@@ -107,6 +109,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }:
 				{appointmentsWithCoordinates.map((appoinment) => (
 					<MarkerAnimated
 						key={appoinment.id}
+						onPress={() => openBottomSheetDetails(appoinment)}
 						coordinate={{
 							latitude: +appoinment.coordinates.split(',')[0],
 							longitude: +appoinment.coordinates.split(',')[1],
@@ -115,7 +118,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }:
 							width: 10,
 							height: 10,
 						}}
-						title={`${formatISOToDate(appoinment.dateTime, true)}`}
+						title={`${appoinment.clientName}`}
 					/>
 				))}
 			</MapView>
@@ -143,7 +146,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }:
 				</View>
 			</View>
 
-			<View
+			{/* <View
 				className='absolute top-3 left-5 bg-white/90 p-3 rounded-2xl'
 				style={{
 					shadowColor: '#000',
@@ -154,11 +157,11 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef }:
 				}}>
 				<CustomText className='text-xs text-gray-700 font-mono'>Lat: {currentCoordinates.latitude.toFixed(4)}</CustomText>
 				<CustomText className='text-xs text-gray-700 font-mono'>Lng: {currentCoordinates.longitude.toFixed(4)}</CustomText>
-			</View>
+			</View> */}
 
 			<Pressable
 				onPress={() => queryClient.invalidateQueries({ queryKey: ['get-all-cleaners'] })}
-				className='absolute top-16 right-3.5 bg-white/90 p-2'
+				className='absolute top-24 right-4 bg-white/90 p-2'
 				style={{
 					shadowColor: '#000',
 					shadowOffset: { width: 0, height: 2 },

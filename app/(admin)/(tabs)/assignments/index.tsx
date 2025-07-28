@@ -32,6 +32,8 @@ export default function Assignments() {
 	const { AssignmentCleaner } = useAssignmentCleaner();
 	const { GetCleaners } = useGetAllCleaners();
 
+	console.log('ListAssignmentsAdmins', JSON.stringify(ListAssignmentsAdmin.data?.data, null, 2));
+
 	const handlePresentModalPress = useCallback((timeType: 'start' | 'end') => {
 		onOpen();
 		setCurrentEditingTimeType(timeType);
@@ -50,14 +52,26 @@ export default function Assignments() {
 
 								<View
 									className={`${
-										item.cleaningStatus === 'PENDING' ? 'bg-warning/10' : 'bg-primary/20'
+										item.cleaningStatus === 'PENDING'
+											? 'bg-warning/10'
+											: item.cleaningStatus === 'IN_PROGRESS'
+											? 'bg-secondary/20'
+											: 'bg-primary/20'
 									} rounded-3xl px-3 py-2 self-start`}>
 									<CustomText
-										className={`text-sm ${item.cleaningStatus === 'PENDING' ? 'text-warning' : 'text-primary'}`}
+										className={`text-sm ${
+											item.cleaningStatus === 'PENDING'
+												? 'text-warning'
+												: item.cleaningStatus === 'IN_PROGRESS'
+												? 'text-secondary'
+												: 'text-primary'
+										}`}
 										variantWeight={weight.Medium}>
 										{item.cleaningStatus === 'PENDING'
 											? 'Pendiente'
-											: item.cleaningStatus === 'IN_PROGRESS' && 'En Progreso'}
+											: item.cleaningStatus === 'IN_PROGRESS'
+											? 'En Progreso'
+											: 'Completado'}
 									</CustomText>
 								</View>
 							</View>
@@ -67,6 +81,16 @@ export default function Assignments() {
 									<CustomText>{'Falta asignar un operario'}</CustomText>
 								</View>
 							)}
+
+							<View className='mb-3'>
+								<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
+								<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
+							</View>
+
+							<View className='mb-3'>
+								<CustomText className='text-neutral-400 text-sm'>Número:</CustomText>
+								<CustomText className='text-neutral-100'>{item.cel}</CustomText>
+							</View>
 
 							<View className='mb-3'>
 								<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
@@ -87,7 +111,7 @@ export default function Assignments() {
 											id: item.id,
 											dateTime: item.dateTime.toString(),
 											assignmentStatus: item.assignmentStatus,
-											cleanerId: item.cleanerId,
+											cleanerId: item.cleanner?.id,
 											detail: item.detail,
 											price: item.price,
 											cleaningStatus: item.cleaningStatus,
@@ -95,6 +119,7 @@ export default function Assignments() {
 											locationReference: item.locationReference,
 											locationName: item.locationName,
 											coordinates: item.coordinates,
+											cel: item.cel,
 										},
 									})
 								}
@@ -128,9 +153,9 @@ export default function Assignments() {
 					}
 					ListHeaderComponent={
 						<>
-							<View className='mb-4'>
+							{/* <View className='mb-4'>
 								<CustomText className='text-2xl text-neutral-100'>Lista de asignaciones</CustomText>
-							</View>
+							</View> */}
 
 							<View className='mb-4 flex-row gap-4'>
 								<View className='flex-1'>

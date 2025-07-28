@@ -6,9 +6,9 @@ const validationUpdateAppoinment = Yup.object().shape({
 	price: Yup.number().required('Se requiere este campo'),
 	detail: Yup.string().required('Se requiere este campo'),
 	cleanerId: Yup.string().required('Se requiere este campo'),
-	locationName: Yup.string(),
-	locationReference: Yup.string(),
-	clientName: Yup.string(),
+	locationName: Yup.string().required('Se requiere este campo'),
+	locationReference: Yup.string().required('Se requiere este campo'),
+	clientName: Yup.string().required('Se requiere este campo'),
 });
 
 export default validationUpdateAppoinment;

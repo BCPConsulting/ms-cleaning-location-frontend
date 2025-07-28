@@ -1,4 +1,4 @@
-import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { drawerItems } from './drawer-items';
@@ -12,13 +12,8 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
 		<DrawerContentScrollView
 			{...props}
 			contentContainerStyle={{ paddingTop: insets.top + 10 }}>
-			<CustomText
-				className='mb-5 py-5 text-center text-2xl text-white'
-				variantWeight={weight.Medium}>
-				Cleaning Location
-			</CustomText>
-
-			{drawerItems.map((item) => {
+			<DrawerItemList {...props} />
+			{/* {drawerItems.map((item) => {
 				const { navigation, state } = props;
 				const isActive = state?.routeNames[state.index] === item.route;
 
@@ -52,7 +47,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
 						/>
 					</View>
 				);
-			})}
+			})} */}
 		</DrawerContentScrollView>
 	);
 }

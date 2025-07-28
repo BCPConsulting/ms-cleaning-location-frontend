@@ -15,6 +15,8 @@ import { ApiResponse } from '@/core/shared/interfaces';
  * @description Crear un servicio
  */
 export const createAppointmentAction = async (values: CreateApppointmentRequest): Promise<void> => {
+	console.log('Values', JSON.stringify(values, null, 2));
+
 	try {
 		const { data } = await api.post('/appointments', values);
 		return data;
@@ -32,6 +34,7 @@ export const updateAppoinmentAction = async (values: UpdateApppointmentRequest):
 		const { data } = await api.put(`/appointments/${values.appoinmentId}`, {
 			dateTime: values.dateTime,
 			coordinates: values.coordinates,
+			cel: values.cel,
 			price: values.price,
 			detail: values.detail,
 			cleanerId: values.cleanerId,
@@ -52,6 +55,32 @@ export const updateAppoinmentAction = async (values: UpdateApppointmentRequest):
 export const getAppoinmentIdAction = async (appoinmentId: number): Promise<ApiResponse<Appointment>> => {
 	try {
 		const { data } = await api.get(`/appointments/${appoinmentId}`);
+		return data;
+	} catch (error) {
+		throw error;
+	}
+};
+
+/**
+ *
+ * @description Lista de asignamientos con filtros para propietario
+ */
+export const getAssignmentsOwnerAction = async (
+	values: FilterAssignmentAdminRequest
+): Promise<ApiResponse<AssignmentAdminResponse[]>> => {
+	console.log('values', JSON.stringify(values, null, 2));
+
+	try {
+		const { data } = await api.get('/appointments/owner/filter-paged', {
+			params: {
+				from: values.from,
+				to: values.to,
+				pageSize: values.pageSize,
+				pageNumber: values.pageNumber,
+				paymentType: values.paymentType,
+				cleanerId: values.cleanerId,
+			},
+		});
 		return data;
 	} catch (error) {
 		throw error;
@@ -148,6 +177,19 @@ export const changeCompletedAction = async (values: ChangeCompleteAppoinmentRequ
 				paymentType: values.paymenType,
 			},
 		});
+		return data;
+	} catch (error) {
+		throw error;
+	}
+};
+
+/**
+ *
+ * @description Eliminar la cita del servicio
+ */
+export const deleteAppointmentAction = async (appoinmentId: number): Promise<ApiResponse<null>> => {
+	try {
+		const { data } = await api.delete(`/appointments/${appoinmentId}`);
 		return data;
 	} catch (error) {
 		throw error;

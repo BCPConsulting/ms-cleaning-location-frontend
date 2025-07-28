@@ -15,12 +15,10 @@ export const useSignIn = () => {
 
 			changeStatus(data.token, data);
 
-			if (data.role === 'ADMIN') {
+			if (data.role === 'ADMIN' || data.role === 'OWNER') {
 				router.replace('/(admin)/(tabs)/user');
 			} else if (data.role === 'CLEANER') {
 				router.replace('/(cleaner)/(tabs)/user');
-			} else if (data.role === 'OWNER') {
-				router.replace('/(owner)/(tabs)/user');
 			} else {
 				router.replace('/auth/sign-in');
 			}

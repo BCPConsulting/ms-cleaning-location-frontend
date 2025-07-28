@@ -25,7 +25,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronDownIcon } from '@/components/ui/icon';
 
 export default function AssignmentIdCleaner() {
-	const { id, dateTime, assignmentStatus, cleanerId, detail, cleaningStatus } = useLocalSearchParams();
+	const { id, dateTime, assignmentStatus, cleanerId, detail, cleaningStatus, clientName, locationName, locationReference, cel } =
+		useLocalSearchParams();
 	const { toastError } = useToast();
 	const [paymentType, setPaymentType] = useState<PaymentType | null>(null);
 	const { ChangeInProgress } = useChangeInProgress();
@@ -63,9 +64,7 @@ export default function AssignmentIdCleaner() {
 					</CustomText>
 				</View>
 
-				<View className='flex-row items-center justify-between'>
-					<CustomText className='text-neutral-200'>#{id}</CustomText>
-
+				<View className='flex-row items-center justify-between mb-5'>
 					<View
 						className={`${
 							cleaningStatus === 'PENDING' ? 'bg-warning/10' : 'bg-secondary/20'
@@ -79,15 +78,39 @@ export default function AssignmentIdCleaner() {
 				</View>
 
 				<View className='mb-3'>
+					<CustomText className='text-neutral-400 text-sm'>Nombre Cliente:</CustomText>
+					<CustomText className='text-neutral-100'>{clientName}</CustomText>
+				</View>
+
+				<View className='mb-3'>
+					<CustomText className='text-neutral-400 text-sm'>Nombre celular:</CustomText>
+					<CustomText className='text-neutral-100'>{cel}</CustomText>
+				</View>
+
+				<View className='mb-3'>
 					<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
 					<CustomText className='text-neutral-100'>{detail}</CustomText>
 				</View>
 
 				<View className='mb-3'>
+					<CustomText className='text-neutral-400 text-sm'>Nombre del lugar:</CustomText>
+					<CustomText className='text-neutral-100'>{locationName}</CustomText>
+				</View>
+
+				<View className='mb-3'>
+					<CustomText className='text-neutral-400 text-sm'>Lugar de referencia:</CustomText>
+					<CustomText className='text-neutral-100'>{locationReference}</CustomText>
+				</View>
+
+				<View className='mb-3'>
+					<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
+					<CustomText className='text-neutral-100'>{formatISOToDate(dateTime as string, true)}</CustomText>
+				</View>
+
+				<View className='mb-3'>
 					<Select onValueChange={(value) => setPaymentType(value as PaymentType)}>
 						<SelectTrigger
-							style={{ borderWidth: 0 }}
-							variant='rounded'
+							style={{ borderWidth: 0, backgroundColor: '#262626', borderRadius: 12 }}
 							className='justify-between'
 							size='md'>
 							<SelectInput
@@ -124,11 +147,6 @@ export default function AssignmentIdCleaner() {
 							</SelectContent>
 						</SelectPortal>
 					</Select>
-				</View>
-
-				<View className='mb-3'>
-					<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
-					<CustomText className='text-neutral-100'>{formatISOToDate(dateTime as string, true)}</CustomText>
 				</View>
 
 				<Button

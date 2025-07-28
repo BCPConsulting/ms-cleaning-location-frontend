@@ -24,12 +24,10 @@ export default function Page() {
 			}
 
 			// Navegar según el rol del usuario
-			if (user.role === 'ADMIN') {
+			if (user.role === 'ADMIN' || user.role === 'OWNER') {
 				router.replace('/(admin)/(tabs)/user');
 			} else if (user.role === 'CLEANER') {
 				router.replace('/(cleaner)/(tabs)/user');
-			} else if (user.role === 'OWNER') {
-				router.replace('/(owner)');
 			} else {
 				router.replace('/auth/sign-in');
 			}

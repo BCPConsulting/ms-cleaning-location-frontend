@@ -18,7 +18,7 @@ export default function AdminTabsLayout() {
 						return (
 							<View
 								className='flex-row items-center bg-neutral-950 px-4'
-								style={{ paddingVertical: insets.top + 10 }}>
+								style={{ paddingTop: insets.top + 10, paddingBottom: 10 }}>
 								<Pressable onPress={() => navigation.toggleDrawer()}>
 									<Ionicons
 										name='menu-outline'

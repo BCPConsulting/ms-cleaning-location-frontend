@@ -29,12 +29,6 @@ export default function UserScreen() {
 	return (
 		<Screen>
 			<View className='flex-1 px-4'>
-				<CustomText
-					variantWeight={weight.SemiBold}
-					className='text-2xl mb-4 text-neutral-100'>
-					Perfil de usuario
-				</CustomText>
-
 				<View className='flex-1'>
 					<Pressable onPress={() => setShowActionsheet(true)}>
 						<View className='flex-row'>

@@ -36,6 +36,7 @@ import { useDisclose } from '@/hooks/use-disclose';
 import CalendarWheel from '@/components/ui/calendar-wheel';
 import { Formik, FormikHelpers } from 'formik';
 import validationUpdateAppoinment from '@/presentation/appoinment/validation/update-service-validation';
+import { useDeleteAppointment } from '@/presentation/appoinment/hooks/use-delete-appointment';
 
 interface InitialValuesUpdate {
 	dateTime: string;
@@ -46,6 +47,7 @@ interface InitialValuesUpdate {
 	price: string;
 	detail: string;
 	cleanerId: string;
+	cel: string;
 }
 
 export default function AssignmentIdCleaner() {
@@ -61,12 +63,15 @@ export default function AssignmentIdCleaner() {
 		locationReference,
 		clientName,
 		coordinates,
+		cel,
 	} = useLocalSearchParams();
 	const [isOpen, onOpen, onClose] = useDisclose();
 	const { toastError } = useToast();
 	const { GetCleaners } = useGetAllCleaners();
 	// const { AssignmentCleaner } = useAssignmentCleaner();
 	const { UpdateAppoinment } = useUpdateAppoinment();
+	const { DeleteAppointment } = useDeleteAppointment();
+
 	const initialValues: InitialValuesUpdate = useMemo(() => {
 		return {
 			dateTime: dateTime as string,
@@ -77,6 +82,7 @@ export default function AssignmentIdCleaner() {
 			price: price as string,
 			detail: detail as string,
 			cleanerId: cleanerId as string,
+			cel: cel as string,
 		};
 	}, []);
 
@@ -91,7 +97,12 @@ export default function AssignmentIdCleaner() {
 			price: +values.price,
 			detail: values.detail,
 			cleanerId: +values.cleanerId,
+			cel: values.cel,
 		});
+	};
+
+	const handleDeleteAppoinment = async (id: number) => {
+		DeleteAppointment.mutate(id);
 	};
 
 	const selectedCleaner = GetCleaners.data?.data.find((cleaner) => cleaner.id === +cleanerId);
@@ -148,6 +159,19 @@ export default function AssignmentIdCleaner() {
 
 									<View className='mb-3'>
 										<Input
+											label='Celular'
+											value={values.cel}
+											onChangeText={handleChange('cel')}
+											onBlur={handleBlur('cel')}
+											placeholder='Ingresar celular'
+											multiline
+											error={!!(touched.cel && errors.cel)}
+											name='cel'
+										/>
+									</View>
+
+									<View className='mb-3'>
+										<Input
 											label='Lugar'
 											value={values.locationName}
 											onChangeText={handleChange('locationName')}
@@ -191,8 +215,11 @@ export default function AssignmentIdCleaner() {
 											label='Detalles'
 											value={values.detail as string}
 											onChangeText={handleChange('detail')}
+											onBlur={handleBlur('detail')}
 											multiline
 											placeholder='Ingresar Detalles'
+											error={!!(touched.detail && errors.detail)}
+											name='detail'
 										/>
 									</View>
 
@@ -203,13 +230,14 @@ export default function AssignmentIdCleaner() {
 											selectedValue={cleanerId?.toString()}
 											defaultValue={cleanerId?.toString()}
 											initialLabel={selectedCleaner?.username}
-											// onValueChange={(cleanerId) =>
-											// 	AssignmentCleaner.mutate({
-											// 		cleanerId: +cleanerId,
-											// 		appoinmentId: +id,
-											// 	})
-											// }
-										>
+											onValueChange={(cleanerId) =>
+												// AssignmentCleaner.mutate({
+												// 	cleanerId: +cleanerId,
+												// 	appoinmentId: +id,
+												// })
+
+												setFieldValue('cleanerId', cleanerId)
+											}>
 											<SelectTrigger
 												className='justify-between'
 												variant='rounded'
@@ -247,6 +275,14 @@ export default function AssignmentIdCleaner() {
 												</SelectContent>
 											</SelectPortal>
 										</Select>
+
+										{errors.cleanerId && touched.cleanerId ? (
+											<CustomText
+												className='mt-2 mb-4 text-sm text-rose-300'
+												variantWeight={weight.Medium}>
+												{errors.cleanerId}
+											</CustomText>
+										) : null}
 									</View>
 
 									<View className='mb-3'>
@@ -301,11 +337,20 @@ export default function AssignmentIdCleaner() {
 									</Actionsheet>
 
 									<Button
-										text='Actualizar servicio'
+										text='Actualizar'
 										className='mb-3'
 										isLoading={UpdateAppoinment.isPending}
 										disabled={UpdateAppoinment.isPending}
 										onPress={() => handleSubmit()}
+									/>
+
+									<Button
+										text='Eliminar'
+										backgroundColor={'red'}
+										className='mb-3'
+										isLoading={DeleteAppointment.isPending}
+										disabled={DeleteAppointment.isPending}
+										onPress={() => handleDeleteAppoinment(+id as number)}
 									/>
 								</View>
 							)}

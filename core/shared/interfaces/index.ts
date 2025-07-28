@@ -1,7 +1,7 @@
 export type Role = 'OWNER' | 'ADMIN' | 'CLEANER';
 export type Status = 'ACTIVE' | 'INACTIVE';
 export type PaymentType = 'CASH' | 'YAPE' | 'TRANSFER' | 'PLIN';
-export type CleaningStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETE';
+export type CleaningStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
 export type AssignmentStatus = 'UNASSIGNED' | 'ASSIGNED';
 export type AuthStatus = 'AUTHENTICATE' | 'UNAUTHENTICATE' | 'CHECKING';
 

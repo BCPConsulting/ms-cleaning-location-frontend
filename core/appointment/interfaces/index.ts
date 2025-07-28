@@ -11,6 +11,7 @@ export interface Appointment {
 	assignmentStatus: AssignmentStatus;
 	status: Status;
 	cleaner: User;
+	cel: string;
 }
 
 export interface CreateApppointmentRequest {
@@ -20,6 +21,7 @@ export interface CreateApppointmentRequest {
 	locationName: string;
 	locationReference: string;
 	clientName: string;
+	cel: string;
 }
 
 export interface UpdateApppointmentRequest extends CreateApppointmentRequest {
@@ -34,6 +36,7 @@ export interface FilterAssignmentAdminRequest {
 	pageSize: number;
 	pageNumber: number;
 	cleanerId?: number;
+	paymentType?: PaymentType;
 }
 
 export interface AssignmentAdminResponse {
@@ -41,13 +44,15 @@ export interface AssignmentAdminResponse {
 	dateTime: Date;
 	cleaningStatus: CleaningStatus;
 	assignmentStatus: AssignmentStatus;
-	cleanerId: number;
+	cleanner: Omit<User, 'token' | 'password'>;
 	detail: string;
 	price: number;
 	clientName: string;
 	locationName: string;
 	locationReference: string;
 	coordinates: string;
+	paymentType: PaymentType;
+	cel: string;
 }
 
 export interface AssignmentCleanerRequest {

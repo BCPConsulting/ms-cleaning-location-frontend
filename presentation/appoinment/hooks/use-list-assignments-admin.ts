@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { getAssignmentsAdminAction } from '@/core/appointment/actions';
+import { getAssignmentsAdminAction, getAssignmentsOwnerAction } from '@/core/appointment/actions';
 import { FilterAssignmentAdminRequest } from '@/core/appointment/interfaces';
 import { formatDateToEndOfDay, formatDateToStartOfDay } from '@/utils/format-start-end-date';
+import { useAuthStore } from '@/presentation/auth/store/use-auth-store';
 
 export const useListAssignmentsAdmin = (values: FilterAssignmentAdminRequest) => {
-	const { toastError, toastSuccess } = useToast();
+	const { user } = useAuthStore();
 
 	const formattedValues = {
 		...values,
@@ -15,7 +15,13 @@ export const useListAssignmentsAdmin = (values: FilterAssignmentAdminRequest) =>
 
 	const ListAssignmentsAdmin = useQuery({
 		queryKey: ['list-assignments-admin', values.from, values.to],
-		queryFn: () => getAssignmentsAdminAction(formattedValues),
+		queryFn: () => {
+			if (user.role === 'ADMIN') {
+				return getAssignmentsAdminAction(formattedValues);
+			} else {
+				return getAssignmentsOwnerAction(formattedValues);
+			}
+		},
 	});
 
 	return {
