@@ -181,7 +181,7 @@ export default function CreateServiceScreen() {
 							}}>
 							<Formik
 								initialValues={initialValue}
-								// validationSchema={validationCreateAppoinment}
+								validationSchema={validationCreateAppoinment}
 								onSubmit={(values, formik) => handleCreateService(values, formik)}>
 								{({ values, handleSubmit, handleChange, handleBlur, touched, errors }) => (
 									<View>

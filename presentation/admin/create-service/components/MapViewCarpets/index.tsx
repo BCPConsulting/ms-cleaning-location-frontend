@@ -1,10 +1,7 @@
-import Button from '@/components/ui/button';
-import { CustomText } from '@/components/ui/custom-text';
 import { Spinner } from '@/components/ui/spinner';
-import { Appointment, AssignmentAdminResponse } from '@/core/appointment/interfaces';
-import { useListAssignmentsAdmin } from '@/presentation/appoinment/hooks/use-list-assignments-admin';
+import { LogisticEvent } from '@/core/logistic-event/interfaces';
+import { useListLogisticEvent } from '@/presentation/logistic-event/hooks/use-list-logistic-event';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
-import { formatISOToDate } from '@/utils/format-iso-to-date';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { memo, useMemo, useRef, useState } from 'react';
@@ -19,19 +16,15 @@ interface Props {
 	currentCoordinates: LatLng;
 	handleSetCoordinates: (latitude: number, longitude: number) => void;
 	mapRef: React.RefObject<MapView | null>;
-	openBottomSheetDetails: (appoinment: AssignmentAdminResponse) => void;
+	openBottomSheetDetails: (appoinment: LogisticEvent) => void;
 }
 
-const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
-	const defaultDate = useMemo(() => new Date(), []);
-	const { ListAssignmentsAdmin } = useListAssignmentsAdmin({
-		from: defaultDate,
-		to: defaultDate,
-		pageNumber: 1,
-		pageSize: 10000,
-	});
+const MapViewCarpets = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
+	const { ListLogisticEvent } = useListLogisticEvent();
 	const { GetCleaners } = useGetAllCleaners();
 	const queryClient = useQueryClient();
+
+	console.log('values', JSON.stringify(ListLogisticEvent.data?.data, null, 2));
 
 	const onRegionChangeComplete = (region: Region) => {
 		const latitudeDelta = region.latitudeDelta;
@@ -41,15 +34,15 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 		handleSetCoordinates(adjustedLatitude, region.longitude);
 	};
 
-	const appointmentsWithCoordinates = useMemo(() => {
-		if (!ListAssignmentsAdmin.data?.data) return [];
+	const LogisticWithCoordinates = useMemo(() => {
+		if (!ListLogisticEvent.data?.data) return [];
 
-		return ListAssignmentsAdmin.data.data.filter((appointment) => {
-			return appointment.coordinates && appointment.coordinates.trim() !== '' && appointment.coordinates !== 'null';
+		return ListLogisticEvent.data.data.filter((logistic) => {
+			return logistic.coordinates && logistic.coordinates.trim() !== '' && logistic.coordinates !== 'null';
 		});
-	}, [ListAssignmentsAdmin.data?.data]);
+	}, [ListLogisticEvent.data?.data]);
 
-	if (ListAssignmentsAdmin.isPending || GetCleaners.isPending) {
+	if (ListLogisticEvent.isPending || GetCleaners.isPending) {
 		return (
 			<View className='flex-1 justify-center items-center'>
 				<Spinner size={'large'} />
@@ -106,19 +99,19 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 						title={`${cleaner.username}`}
 					/>
 				))}
-				{appointmentsWithCoordinates.map((appoinment) => (
+				{LogisticWithCoordinates.map((logistic) => (
 					<MarkerAnimated
-						key={appoinment.id}
-						onPress={() => openBottomSheetDetails(appoinment)}
+						key={logistic.id}
+						onPress={() => openBottomSheetDetails(logistic)}
 						coordinate={{
-							latitude: +appoinment.coordinates.split(',')[0],
-							longitude: +appoinment.coordinates.split(',')[1],
+							latitude: +logistic.coordinates.split(',')[0],
+							longitude: +logistic.coordinates.split(',')[1],
 						}}
 						style={{
 							width: 10,
 							height: 10,
 						}}
-						title={`${appoinment.clientName}`}
+						// title={`${appoinment.clientName}`}
 					/>
 				))}
 			</MapView>
@@ -146,19 +139,6 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 				</View>
 			</View>
 
-			{/* <View
-				className='absolute top-3 left-5 bg-white/90 p-3 rounded-2xl'
-				style={{
-					shadowColor: '#000',
-					shadowOffset: { width: 0, height: 2 },
-					shadowOpacity: 0.25,
-					shadowRadius: 3.84,
-					elevation: 5,
-				}}>
-				<CustomText className='text-xs text-gray-700 font-mono'>Lat: {currentCoordinates.latitude.toFixed(4)}</CustomText>
-				<CustomText className='text-xs text-gray-700 font-mono'>Lng: {currentCoordinates.longitude.toFixed(4)}</CustomText>
-			</View> */}
-
 			<Pressable
 				onPress={() => queryClient.invalidateQueries({ queryKey: ['get-all-cleaners'] })}
 				className='absolute top-24 right-4 bg-white/90 p-2'
@@ -179,4 +159,4 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 	);
 });
 
-export default MapViewAdmin;
+export default MapViewCarpets;

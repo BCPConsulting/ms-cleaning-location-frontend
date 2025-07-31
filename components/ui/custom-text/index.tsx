@@ -15,12 +15,14 @@ interface Props extends TextProps {
 type VariantTypeText = 'title' | 'subtitle' | 'text';
 
 export const weight = {
-	Light: 'PoppinsLight',
-	Regular: 'PoppinsRegular',
-	Medium: 'PoppinsMedium',
-	SemiBold: 'PoppinsSemiBold',
-	Bold: 'PoppinsBold',
-	Title: 'BebasNeueRegular',
+	Regular: 'RobotoRegular',
+	Medium: 'RobotoMedium',
+	SemiBold: 'RobotoSemiBold',
+	Bold: 'RobotoBold',
+	Title: 'SoraRegular',
+	TitleMedium: 'SoraMedium',
+	TitleSemiBold: 'SoraSemiBold',
+	TitleBold: 'SoraBold',
 };
 
 export const CustomText = (props: Props) => {

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { router } from 'expo-router';
 import * as Location from 'expo-location';
+import * as SecureStore from 'expo-secure-store';
 import { ThemedText } from '@/components/ThemedText';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { Screen } from '@/components/ui/screen';
@@ -13,6 +14,10 @@ export default function Page() {
 
 	const checkAuthStatus = useCallback(async () => {
 		try {
+			const token = await SecureStore.getItemAsync('token');
+
+			console.log('token', token);
+
 			if (!user.token) {
 				router.replace('/auth/sign-in');
 				return;

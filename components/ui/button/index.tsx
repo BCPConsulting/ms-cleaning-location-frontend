@@ -37,14 +37,14 @@ interface Props extends Omit<PressableProps, 'style'> {
 
 // Configuración de estilos por variant
 const getVariantStyles = (variant: 'solid' | 'outline' | 'light', backgroundColor?: string) => {
-	const baseColor = backgroundColor || '#006fee';
+	const baseColor = backgroundColor || '#23AF87';
 
 	switch (variant) {
 		case 'solid':
 			return {
 				backgroundColor: baseColor,
 				borderColor: baseColor,
-				textColor: '#ffffff',
+				textColor: '#000000',
 			};
 
 		case 'outline':
@@ -57,7 +57,7 @@ const getVariantStyles = (variant: 'solid' | 'outline' | 'light', backgroundColo
 		case 'light':
 			return {
 				backgroundColor: `${baseColor}20`, // Agregar transparencia
-				borderColor: baseColor,
+				borderColor: 'transparent',
 				textColor: baseColor,
 			};
 

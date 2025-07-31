@@ -38,6 +38,14 @@ export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	const [loaded, error] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+		RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
+		RobotoMedium: require('../assets/fonts/Roboto-Medium.ttf'),
+		RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
+		RobotoSemiBold: require('../assets/fonts/Roboto-SemiBold.ttf'),
+		SoraBold: require('../assets/fonts/Sora-Bold.ttf'),
+		SoraSemiBold: require('../assets/fonts/Sora-SemiBold.ttf'),
+		SoraRegular: require('../assets/fonts/Sora-Regular.ttf'),
+		SoraMedium: require('../assets/fonts/Sora-Medium.ttf'),
 	});
 
 	useEffect(() => {
@@ -52,9 +60,9 @@ export default function RootLayout() {
 	}
 
 	return (
-		<GluestackUIProvider mode='dark'>
-			<SafeAreaProvider style={{ backgroundColor: 'black' }}>
-				<GestureHandlerRootView style={{ backgroundColor: '#222', flex: 1 }}>
+		<GestureHandlerRootView style={{ backgroundColor: '#222', flex: 1 }}>
+			<GluestackUIProvider mode='dark'>
+				<SafeAreaProvider style={{ backgroundColor: 'black' }}>
 					<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 						<QueryClientProvider client={queryClient}>
 							<AuthProvider>
@@ -84,8 +92,8 @@ export default function RootLayout() {
 							</AuthProvider>
 						</QueryClientProvider>
 					</ThemeProvider>
-				</GestureHandlerRootView>
-			</SafeAreaProvider>
-		</GluestackUIProvider>
+				</SafeAreaProvider>
+			</GluestackUIProvider>
+		</GestureHandlerRootView>
 	);
 }

@@ -46,7 +46,7 @@ export default function Input(props: Props) {
 					className='text-sm'
 					styleCustom={{
 						marginBottom: 4,
-						color: '#d4d4d4',
+						color: '#a3a3a3',
 						paddingTop: 5,
 					}}>
 					{label}

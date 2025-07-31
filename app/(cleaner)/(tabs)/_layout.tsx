@@ -32,6 +32,21 @@ export default function AdminTabsLayout() {
 			/>
 
 			<Tabs.Screen
+				name='my-assignments-carpets'
+				options={{
+					title: 'Asignaciones Alfombra',
+					tabBarLabel: 'Asignaciones Alfombra',
+					tabBarIcon: ({ color }) => (
+						<Ionicons
+							size={20}
+							name='person-add-outline'
+							color={color}
+						/>
+					),
+				}}
+			/>
+
+			<Tabs.Screen
 				name='user/index'
 				options={{
 					title: 'Perfil',

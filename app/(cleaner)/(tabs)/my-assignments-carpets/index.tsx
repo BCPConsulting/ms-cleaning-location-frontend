@@ -1,15 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
 import { router } from 'expo-router';
 import { CustomText, weight } from '@/components/ui/custom-text';
 import { Screen } from '@/components/ui/screen';
 import Button from '@/components/ui/button';
-import { useListAssignmentsCleaner } from '@/presentation/appoinment/hooks/use-list-assignments-cleaner';
-import { AssignmentAdminResponse } from '@/core/appointment/interfaces';
 import { useAuthStore } from '@/presentation/auth/store/use-auth-store';
-import { formatISOToDate } from '@/utils/format-iso-to-date';
 import { useUpdateCoordinates } from '@/presentation/user/hooks/use-update-coordinates';
 import { useGetCurrentLocation } from '@/presentation/user/hooks/use-get-current-location';
+import { useListDeliveryFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter';
+import { Delivery } from '@/core/delivery/interfaces';
 
 //!![FIXED]: Obtener las coordenadas con una precision exacta
 //! [FIXED]: Falta agregar loaders para mejorar la experiencia de usuario
@@ -17,22 +16,29 @@ import { useGetCurrentLocation } from '@/presentation/user/hooks/use-get-current
 export default function MyAssigmenetScreen() {
 	const { user } = useAuthStore();
 	const [refreshing, setRefreshing] = useState(false);
-	const dateRef = useRef(new Date());
-	const { ListAssignmentsCleaner } = useListAssignmentsCleaner({
-		from: dateRef.current,
-		to: dateRef.current,
+	const { ListDeliveriesFilter } = useListDeliveryFilter({
 		pageNumber: 1,
 		pageSize: 10,
-		cleanerId: user?.id ?? 0,
+		cleanerId: user?.id?.toString() ?? '',
+		status: 'ACTIVE',
 	});
 	const { UpdateCoordinates } = useUpdateCoordinates();
 	const { GetCurrentLocation } = useGetCurrentLocation();
 
+	const transformedDeliveries = useMemo(() => {
+		if (!ListDeliveriesFilter.data?.data) return [];
+
+		return ListDeliveriesFilter.data.data.map((delivery) => ({
+			...delivery,
+			id: delivery.deliveryId,
+		}));
+	}, [ListDeliveriesFilter.data?.data]);
+
 	const keyExtractor = useCallback((item: { id: number }) => item.id.toString(), []);
 
-	console.log('ListAssignmentsCleaner', JSON.stringify(ListAssignmentsCleaner.data?.data, null, 2));
+	console.log('ListDeliveriesFilter', JSON.stringify(ListDeliveriesFilter.data?.data, null, 2));
 
-	const renderItem = useCallback(({ item }: { item: AssignmentAdminResponse }) => {
+	const renderItem = useCallback(({ item }: { item: Delivery }) => {
 		return (
 			<>
 				<View className='w-full'>
@@ -59,39 +65,13 @@ export default function MyAssigmenetScreen() {
 							<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
 						</View>
 
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Celular:</CustomText>
-							<CustomText className='text-neutral-100'>{item.cel}</CustomText>
-						</View>
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
-							<CustomText className='text-neutral-100'>{item.detail}</CustomText>
-						</View>
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
-							<CustomText className='text-neutral-100'>{formatISOToDate(item.dateTime, true)}</CustomText>
-						</View>
-
 						<Button
 							text='Ver detalles'
 							onPress={() =>
 								router.push({
-									pathname: '/(cleaner)/(tabs)/my-assignments/appoinment-cleaner',
+									pathname: '/(cleaner)/(tabs)/my-assignments-carpets/appoinment-cleaner',
 									params: {
 										id: item.id,
-										dateTime: item.dateTime.toString(),
-										assignmentStatus: item.assignmentStatus,
-										cleanerId: item.cleanner?.id,
-										detail: item.detail,
-										price: item.price,
-										cleaningStatus: item.cleaningStatus,
-										clientName: item.clientName,
-										locationReference: item.locationReference,
-										locationName: item.locationName,
-										coordinates: item.coordinates,
-										cel: item.cel,
 									},
 								})
 							}
@@ -118,7 +98,7 @@ export default function MyAssigmenetScreen() {
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
-		ListAssignmentsCleaner.refetch();
+		ListDeliveriesFilter.refetch();
 		setRefreshing(false);
 	}, []);
 
@@ -127,7 +107,7 @@ export default function MyAssigmenetScreen() {
 			<View className='flex-1 px-4'>
 				<View className='flex-1'>
 					<FlatList
-						data={ListAssignmentsCleaner.data?.data ?? []}
+						data={transformedDeliveries ?? []}
 						ItemSeparatorComponent={() => <View className='h-4' />}
 						keyExtractor={keyExtractor}
 						refreshControl={

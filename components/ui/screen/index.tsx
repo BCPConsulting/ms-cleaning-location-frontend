@@ -17,7 +17,7 @@ export const Screen = ({ children, isSafeAreaInsets = true }: Props) => {
 
 	return (
 		<View
-			className='flex-1 bg-neutral-950'
+			className='flex-1 bg-[#0E171B]'
 			style={valueSafeAreaInsets}>
 			<StatusBar backgroundColor='#0a0a0a' />
 			<View className='flex-1 relative'>{children}</View>
