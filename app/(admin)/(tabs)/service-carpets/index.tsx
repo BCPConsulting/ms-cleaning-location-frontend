@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, RefreshControl, View } from 'react-native';
+import { Dimensions, FlatList, KeyboardAvoidingView, Platform, Pressable, RefreshControl, View } from 'react-native';
 import { router } from 'expo-router';
 import { Formik, FormikHelpers, FormikValues } from 'formik';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -15,6 +15,7 @@ import { paymentTypeReturnData } from '@/utils/payment-type-return-data';
 import validationCreateDelivery from '@/presentation/delivery/validation/create-delivery-validation';
 import { useCreateDelivery } from '@/presentation/delivery/hooks/use-create-delivery';
 import { useListDeliveryFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter';
+import { Ionicons } from '@expo/vector-icons';
 
 const initialValues: CreateServiceDelivery = {
 	price: '',
@@ -23,6 +24,8 @@ const initialValues: CreateServiceDelivery = {
 	cleaningStatus: 'PENDING',
 	status: 'ACTIVE',
 };
+
+const width = Dimensions.get('window').width;
 
 export default function ServiceCarpetsScreen() {
 	const [currentIndex, setCurrentIndex] = useState(1);
@@ -35,6 +38,8 @@ export default function ServiceCarpetsScreen() {
 	});
 	const { CreateDelivery } = useCreateDelivery();
 	const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+
+	console.log('ListDeliveriesFilter', JSON.stringify(ListDeliveriesFilter.data?.data, null, 2));
 
 	const snapPoints = useMemo(() => ['100%'], []);
 
@@ -63,52 +68,52 @@ export default function ServiceCarpetsScreen() {
 
 	const renderItem = useCallback(({ item }: { item: Delivery }) => {
 		return (
-			<>
-				<Pressable
-					style={{
-						flex: 1,
-						// height: 100,
-					}}
-					onPress={() =>
-						router.push({
-							pathname: '/(admin)/(tabs)/service-carpets/[id]',
-							params: {
-								id: item.id,
-							},
-						})
-					}>
-					<View className='w-full flex-1 bg-neutral-800'>
-						<View className='p-4 bg-neutral-800 rounded-xl'>
-							<View className='flex-row justify-between items-center'>
-								<CustomText className='text-neutral-200'>#{item.id}</CustomText>
-
-								<View
-									className='rounded-full self-start px-2 py-1 mt-2'
-									style={{
-										backgroundColor: paymentTypeReturnData(item.paymentType).color,
-									}}>
-									<CustomText className='text-neutral-100'>{paymentTypeReturnData(item.paymentType).name}</CustomText>
-								</View>
-							</View>
-							<View>
-								<CustomText
-									className='text-neutral-100'
-									variantWeight={weight.Medium}>
-									{item.clientName}
-								</CustomText>
-							</View>
-
-							<View>
-								<CustomText
-									className='text-neutral-100'
-									variantWeight={weight.Medium}>
-									{item.price}
-								</CustomText>
-							</View>
-						</View>
+			<View
+				style={{
+					width: width / 2 - 21,
+					// height: 100,
+				}}>
+				<View className='flex-1 p-3 bg-neutral-800 border border-neutral-600 rounded-xl'>
+					<View className='flex-row justify-between items-center'>
+						<CustomText className='text-neutral-200'>#{item.id}</CustomText>
 					</View>
-				</Pressable>
-			</>
+					<View>
+						<CustomText
+							className='text-neutral-100'
+							variantWeight={weight.Medium}>
+							{item.clientName}
+						</CustomText>
+					</View>
+
+					<View
+						className='rounded-xl self-start px-4 py-1 my-3'
+						style={{
+							backgroundColor: paymentTypeReturnData(item.paymentType).color,
+						}}>
+						<CustomText className='text-neutral-100 text-sm'>{paymentTypeReturnData(item.paymentType).name}</CustomText>
+					</View>
+
+					<View>
+						<Pressable
+							className='flex-row bg-neutral-900 items-center gap-2 p-3 rounded-xl'
+							onPress={() =>
+								router.push({
+									pathname: '/(admin)/(tabs)/service-carpets/[id]',
+									params: {
+										id: item.id,
+									},
+								})
+							}>
+							<Ionicons
+								name='eye-outline'
+								size={20}
+								color='white'
+							/>
+							<CustomText className='text-neutral-100 text-sm'>Ver mas</CustomText>
+						</Pressable>
+					</View>
+				</View>
+			</View>
 		);
 	}, []);
 
@@ -135,12 +140,18 @@ export default function ServiceCarpetsScreen() {
 	};
 
 	return (
-		<Screen>
-			<View className='flex-1 px-4 relative'>
+		<Screen isSafeAreaInsets={false}>
+			<View className='flex-1 relative'>
 				<FlatList
+					numColumns={2}
 					data={transformedDeliveries ?? []}
+					columnWrapperStyle={{
+						justifyContent: 'space-between',
+						paddingHorizontal: 16,
+					}}
 					ItemSeparatorComponent={() => <View className='h-3' />}
 					keyExtractor={keyExtractor}
+					horizontal={false}
 					renderItem={renderItem}
 					refreshControl={
 						<RefreshControl
@@ -152,7 +163,7 @@ export default function ServiceCarpetsScreen() {
 					}
 				/>
 
-				<View className='w-full py-4'>
+				<View className='w-full py-4 px-4'>
 					<Button
 						text='Crear Delivery'
 						onPress={() => bottomSheetRef.current?.expand()}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, PressableProps, ViewStyle } from 'react-native';
+import { Pressable, PressableProps, Text, ViewStyle } from 'react-native';
 import { CustomText, weight } from '../custom-text';
 import { Spinner } from '../spinner';
 
@@ -37,14 +37,14 @@ interface Props extends Omit<PressableProps, 'style'> {
 
 // Configuración de estilos por variant
 const getVariantStyles = (variant: 'solid' | 'outline' | 'light', backgroundColor?: string) => {
-	const baseColor = backgroundColor || '#23AF87';
+	const baseColor = backgroundColor || '#209f7b';
 
 	switch (variant) {
 		case 'solid':
 			return {
 				backgroundColor: baseColor,
 				borderColor: baseColor,
-				textColor: '#000000',
+				textColor: '#ffffff',
 			};
 
 		case 'outline':
@@ -95,14 +95,14 @@ export default function Button({
 		}
 
 		return (
-			<CustomText
+			<Text
 				className='my-auto text-center'
-				styleCustom={{
+				style={{
 					color: variantStyles.textColor,
-				}}
-				variantWeight={weight.Medium}>
+					fontFamily: weight.TitleMedium,
+				}}>
 				{text}
-			</CustomText>
+			</Text>
 		);
 	};
 

@@ -163,7 +163,7 @@ export default function CreateServiceScreen() {
 					snapPoints={snapPoints}
 					enablePanDownToClose={true}
 					handleIndicatorStyle={{ backgroundColor: '#fff' }}
-					backgroundStyle={{ backgroundColor: '#262626' }}
+					backgroundStyle={{ backgroundColor: '#121315' }}
 					onChange={handleSheetChanges}
 					enableContentPanningGesture={true}
 					enableHandlePanningGesture={true}
@@ -173,11 +173,11 @@ export default function CreateServiceScreen() {
 						style={{ flex: 1 }}
 						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 						<BottomSheetScrollView
-							style={{ backgroundColor: '#262626', position: 'relative', padding: 12 }}
+							style={{ backgroundColor: '#121315', position: 'relative', padding: 12 }}
 							focusHook={focusHook}
 							nestedScrollEnabled={true}
 							contentContainerStyle={{
-								paddingBottom: Platform.select({ ios: 300, android: 250 }),
+								paddingBottom: Platform.select({ ios: 300, android: 260 }),
 							}}>
 							<Formik
 								initialValues={initialValue}
@@ -185,10 +185,10 @@ export default function CreateServiceScreen() {
 								onSubmit={(values, formik) => handleCreateService(values, formik)}>
 								{({ values, handleSubmit, handleChange, handleBlur, touched, errors }) => (
 									<View>
-										<View>
+										<View className='mb-3'>
 											<Input
 												label='Nombre cliente'
-												placeholder='Ingresar nombre cliente'
+												placeholder='Tu nombre'
 												value={values.clientName}
 												onChangeText={handleChange('clientName')}
 												onFocus={() => bottomSheetRef.current?.expand()}
@@ -198,7 +198,7 @@ export default function CreateServiceScreen() {
 											/>
 										</View>
 
-										<View>
+										<View className='mb-3'>
 											<Input
 												label='Celular'
 												placeholder='999999999'
@@ -211,10 +211,10 @@ export default function CreateServiceScreen() {
 											/>
 										</View>
 
-										<View>
+										<View className='mb-3'>
 											<Input
 												label='Lugar de ubicación'
-												placeholder='Ingresar lugar de ubicación'
+												placeholder='Lima Peru Mz 10'
 												value={values.locationName}
 												onChangeText={handleChange('locationName')}
 												onFocus={() => bottomSheetRef.current?.expand()}
@@ -224,10 +224,10 @@ export default function CreateServiceScreen() {
 											/>
 										</View>
 
-										<View>
+										<View className='mb-3'>
 											<Input
 												label='Referencia de ubicación'
-												placeholder='Ingresar referencia de ubicación'
+												placeholder='2 cuadars para adentro'
 												value={values.locationReference}
 												onChangeText={handleChange('locationReference')}
 												onFocus={() => bottomSheetRef.current?.expand()}
@@ -237,7 +237,7 @@ export default function CreateServiceScreen() {
 											/>
 										</View>
 
-										<View>
+										<View className='mb-3'>
 											<Input
 												label='Precio'
 												placeholder='Ingresar precio'
@@ -251,7 +251,7 @@ export default function CreateServiceScreen() {
 											/>
 										</View>
 
-										<View className='mb-4'>
+										<View className='mb-5'>
 											<Input
 												label='Detalles'
 												placeholder='Ingresar detalles'
@@ -269,7 +269,6 @@ export default function CreateServiceScreen() {
 											text='Crear servicio'
 											disabled={CreateAppointment.isPending}
 											isLoading={CreateAppointment.isPending}
-											className='mb-5'
 											onPress={() => handleSubmit()}
 										/>
 									</View>

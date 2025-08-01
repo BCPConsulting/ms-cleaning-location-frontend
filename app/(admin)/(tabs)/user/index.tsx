@@ -27,7 +27,7 @@ export default function UserScreen() {
 	};
 
 	return (
-		<Screen>
+		<Screen isSafeAreaInsets={false}>
 			<View className='flex-1 px-4'>
 				<View className='flex-1'>
 					<Pressable onPress={() => setShowActionsheet(true)}>
