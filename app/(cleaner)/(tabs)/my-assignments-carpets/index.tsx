@@ -8,7 +8,8 @@ import { useAuthStore } from '@/presentation/auth/store/use-auth-store';
 import { useUpdateCoordinates } from '@/presentation/user/hooks/use-update-coordinates';
 import { useGetCurrentLocation } from '@/presentation/user/hooks/use-get-current-location';
 import { useListDeliveryFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter';
-import { Delivery } from '@/core/delivery/interfaces';
+import { Delivery, DeliveryFilter } from '@/core/delivery/interfaces';
+import { useListDeliveryCleanerFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter copy';
 
 //!![FIXED]: Obtener las coordenadas con una precision exacta
 //! [FIXED]: Falta agregar loaders para mejorar la experiencia de usuario
@@ -16,35 +17,32 @@ import { Delivery } from '@/core/delivery/interfaces';
 export default function MyAssigmenetScreen() {
 	const { user } = useAuthStore();
 	const [refreshing, setRefreshing] = useState(false);
-	const { ListDeliveriesFilter } = useListDeliveryFilter({
+	const { listDeliveryCleanerFilter } = useListDeliveryCleanerFilter({
 		pageNumber: 1,
 		pageSize: 10,
-		cleanerId: user?.id?.toString() ?? '',
 		status: 'ACTIVE',
 	});
 	const { UpdateCoordinates } = useUpdateCoordinates();
 	const { GetCurrentLocation } = useGetCurrentLocation();
 
 	const transformedDeliveries = useMemo(() => {
-		if (!ListDeliveriesFilter.data?.data) return [];
+		if (!listDeliveryCleanerFilter.data?.data || !user?.id) return [];
 
-		return ListDeliveriesFilter.data.data.map((delivery) => ({
+		return listDeliveryCleanerFilter.data.data.map((delivery) => ({
 			...delivery,
 			id: delivery.deliveryId,
 		}));
-	}, [ListDeliveriesFilter.data?.data]);
+	}, [listDeliveryCleanerFilter.data?.data, user?.id]);
 
 	const keyExtractor = useCallback((item: { id: number }) => item.id.toString(), []);
 
-	console.log('ListDeliveriesFilter', JSON.stringify(ListDeliveriesFilter.data?.data, null, 2));
-
-	const renderItem = useCallback(({ item }: { item: Delivery }) => {
+	const renderItem = useCallback(({ item }: { item: DeliveryFilter }) => {
 		return (
 			<>
 				<View className='w-full'>
 					<View className='p-4 bg-neutral-800 rounded-xl'>
 						<View className='flex-row items-center justify-between'>
-							<CustomText className='text-neutral-200'>#{item.id}</CustomText>
+							<CustomText className='text-neutral-200'>#{item.deliveryId}</CustomText>
 
 							<View
 								className={`${
@@ -71,7 +69,7 @@ export default function MyAssigmenetScreen() {
 								router.push({
 									pathname: '/(cleaner)/(tabs)/my-assignments-carpets/appoinment-cleaner',
 									params: {
-										id: item.id,
+										id: item.deliveryId,
 									},
 								})
 							}
@@ -98,7 +96,7 @@ export default function MyAssigmenetScreen() {
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
-		ListDeliveriesFilter.refetch();
+		listDeliveryCleanerFilter.refetch();
 		setRefreshing(false);
 	}, []);
 

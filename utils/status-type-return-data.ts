@@ -3,12 +3,24 @@ import { CleaningStatus } from '@/core/shared/interfaces';
 export const statusReturnTypeData = (cleaningStatus: CleaningStatus) => {
 	switch (cleaningStatus) {
 		case 'PENDING':
-			return 'Pendiente';
+			return {
+				name: 'Pendiente',
+				color: '#57534e',
+			};
 		case 'IN_PROGRESS':
-			return 'En Progreso';
+			return {
+				name: 'En Progreso',
+				color: '#f59e0b',
+			};
 		case 'COMPLETED':
-			return 'Completado';
+			return {
+				name: 'Completado',
+				color: '#16a34a',
+			};
 		default:
-			return '-';
+			return {
+				name: '',
+				color: '',
+			};
 	}
 };

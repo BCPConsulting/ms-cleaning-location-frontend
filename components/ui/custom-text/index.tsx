@@ -15,10 +15,10 @@ interface Props extends TextProps {
 type VariantTypeText = 'title' | 'subtitle' | 'text';
 
 export const weight = {
-	Regular: 'RobotoRegular',
-	Medium: 'RobotoMedium',
-	SemiBold: 'RobotoSemiBold',
-	Bold: 'RobotoBold',
+	Regular: 'WorkSansRegular',
+	Medium: 'WorkSansMedium',
+	SemiBold: 'WorkSansSemiBold',
+	Bold: 'WorkSansBold',
 	Title: 'SoraRegular',
 	TitleMedium: 'SoraMedium',
 	TitleSemiBold: 'SoraSemiBold',

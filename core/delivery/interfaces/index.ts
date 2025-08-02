@@ -31,7 +31,7 @@ export interface CreateServiceDelivery {
 
 export interface UpdateServiceDelivery {
 	deliveryId: number;
-	price: string;
+	price?: string;
 	paymentType: PaymentType;
 	clientName: string;
 	status: Status;
@@ -47,4 +47,5 @@ export interface FilterDelivery {
 	eventType?: LogisticEvent;
 	assignmentStatus?: AssignmentStatus;
 	cleanerId?: string;
+	deliveryId?: string;
 }

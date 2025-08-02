@@ -57,3 +57,46 @@ export const getUsers = async (values: SignInRequest): Promise<ApiResponse<SignI
 		throw error;
 	}
 };
+
+/**
+ * @description Action para valir si cliente pago
+ */
+export const paymentValidationAction = async (): Promise<ApiResponse<string>> => {
+	try {
+		const { data } = await api.get('/auth/payment-validation');
+
+		return data;
+	} catch (error: any) {
+		throw error;
+	}
+};
+
+/**
+ * @description Refresh token
+ */
+export const refreshTokenAction = async (): Promise<
+	ApiResponse<{
+		token: string;
+	}>
+> => {
+	try {
+		const { data } = await api.post('/auth/refresh');
+
+		return data;
+	} catch (error: any) {
+		throw error;
+	}
+};
+
+/**
+ * @description Validar token
+ */
+export const validateTokenAction = async (): Promise<ApiResponse<string>> => {
+	try {
+		const { data } = await api.get('/auth/token-validation');
+
+		return data;
+	} catch (error: any) {
+		throw error;
+	}
+};

@@ -20,9 +20,11 @@ export const createDeliveryAction = async (values: CreateServiceDelivery): Promi
  * @description Actualizar servicio delivery de alfombras
  */
 export const updateDeliveryAction = async (values: UpdateServiceDelivery): Promise<ApiResponse<Delivery>> => {
+	console.log('values', JSON.stringify(values, null, 2));
+
 	try {
 		const { data } = await api.put(`/deliveries/${values.deliveryId}`, {
-			price: values.price,
+			// price: values.price,
 			paymentType: values.paymentType,
 			cleaningStatus: values.cleaningStatus,
 			clientName: values.clientName,
@@ -63,6 +65,30 @@ export const getDeliveriesByFilter = async (values: FilterDelivery): Promise<Api
 				eventType: values.eventType,
 				assignmentStatus: values.assignmentStatus,
 				cleanerId: values.cleanerId,
+			},
+		});
+		return data;
+	} catch (error) {
+		throw error;
+	}
+};
+
+/**
+ *
+ * @description Obtener una lista cleaners de los deliverys alfombras por filtro
+ */
+export const getDeliveriesCleanerByFilter = async (values: FilterDelivery): Promise<ApiResponse<DeliveryFilter[]>> => {
+	try {
+		const { data } = await api.get('/deliveries/cleaner/filter-paged', {
+			params: {
+				paymentType: values.paymentType,
+				status: values.status,
+				pageSize: values.pageSize,
+				pageNumber: values.pageNumber,
+				clientName: values.clientName,
+				eventType: values.eventType,
+				assignmentStatus: values.assignmentStatus,
+				deliveryId: values.deliveryId,
 			},
 		});
 		return data;

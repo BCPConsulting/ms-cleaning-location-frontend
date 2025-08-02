@@ -20,24 +20,6 @@ export const createLogisticEventAction = async (values: CreateLogisticEvent): Pr
  * @description Actualiar servicio de evento delivery de alfombras
  */
 export const updateLogisticEventAction = async (values: UpdateLogisticEvent): Promise<ApiResponse<LogisticEvent>> => {
-	console.log(
-		'VALUES',
-		JSON.stringify(
-			{
-				eventType: values.eventType,
-				coordinates: values.coordinates,
-				locationName: values.locationName,
-				locationReference: values.locationReference,
-				cleanerId: values.cleanerId,
-				deliveryId: values.deliveryId,
-				assignmentStatus: values.assignmentStatus,
-				dateTime: values.dateTime,
-			},
-			null,
-			2
-		)
-	);
-
 	try {
 		const { data } = await api.put(`/logistic-events/${values.id}`, {
 			eventType: values.eventType,
@@ -48,6 +30,7 @@ export const updateLogisticEventAction = async (values: UpdateLogisticEvent): Pr
 			deliveryId: values.deliveryId,
 			assignmentStatus: values.assignmentStatus,
 			dateTime: values.dateTime,
+			cleaningStatus: values.cleaningStatus,
 		});
 		return data;
 	} catch (error) {

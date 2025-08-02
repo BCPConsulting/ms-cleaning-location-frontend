@@ -9,10 +9,9 @@ export const useUpdateLogistic = () => {
 	const UpdateLogistic = useMutation({
 		mutationFn: updateLogisticEventAction,
 		onSuccess: (response) => {
-			queryClient.invalidateQueries({
-				queryKey: ['list-deliverys'],
-			});
-			toastSuccess('Servicio creado correctamente');
+			queryClient.invalidateQueries({ queryKey: ['list-deliverys-filter'] });
+			queryClient.invalidateQueries({ queryKey: ['list-delivery'] });
+			toastSuccess(response.message);
 		},
 
 		onError: (error) => {

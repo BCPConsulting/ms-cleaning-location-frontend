@@ -118,7 +118,7 @@ export default function Button({
 					width: '100%',
 					paddingVertical: 6,
 					paddingHorizontal: 4,
-					borderRadius: 12,
+					borderRadius: 40,
 					minHeight: 50,
 					justifyContent: 'center',
 					alignItems: 'center',

@@ -6,7 +6,6 @@ import { Screen } from '@/components/ui/screen';
 import { Spinner } from '@/components/ui/spinner';
 import { useGetDelivery } from '@/presentation/delivery/hooks/use-get-delivery';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
-import { formatISOToDate } from '@/utils/format-iso-to-date';
 import { ChevronDownIcon } from '@/components/ui/icon';
 import { paymentTypeReturnData } from '@/utils/payment-type-return-data';
 import {
@@ -32,9 +31,12 @@ import { useKeyboard } from '@/hooks/use-key-board';
 import validationCreateLogisticEvent from '@/presentation/logistic-event/validation/create-logistic-event-validation';
 import { CreateLogisticEvent } from '@/core/logistic-event/interfaces';
 import { AssignmentStatus, LogisticEventType } from '@/core/shared/interfaces';
-import MapViewContext, { MapViewContextApi } from '@/context/map-view-context';
+import { MapViewContextApi } from '@/context/map-view-context';
 import { useUpdateLogistic } from '@/presentation/logistic-event/hooks/use-update-logistic-event';
 import { useToast } from '@/hooks/use-toast';
+import { Colors } from '@/constants/Colors';
+import { statusReturnTypeData } from '@/utils/status-type-return-data';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 interface FormLogisticEvent {
 	eventType: LogisticEventType;
@@ -64,26 +66,16 @@ export function formatDateToISO(dateString: string): string {
 	}
 
 	try {
-		// Separar fecha y hora
 		const [datePart, timePart = '00:00'] = dateString.split(' ');
 		const [day, month, year] = datePart.split('/');
 		const [hours, minutes] = timePart.split(':');
 
-		// Crear objeto Date
-		const date = new Date(
-			parseInt(year),
-			parseInt(month) - 1, // Los meses van de 0-11
-			parseInt(day),
-			parseInt(hours),
-			parseInt(minutes)
-		);
+		const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
 
-		// Verificar si la fecha es válida
 		if (isNaN(date.getTime())) {
 			throw new Error('Invalid date');
 		}
 
-		// ✅ Retornar ISO format SIN Z (hora local)
 		const year_str = date.getFullYear();
 		const month_str = (date.getMonth() + 1).toString().padStart(2, '0');
 		const day_str = date.getDate().toString().padStart(2, '0');
@@ -106,14 +98,12 @@ export function formatISOToDisplayDate(isoString: string): string {
 	}
 
 	try {
-		// Crear fecha desde ISO (maneja con y sin Z)
 		const date = new Date(isoString);
 
 		if (isNaN(date.getTime())) {
 			throw new Error('Invalid ISO date');
 		}
 
-		// Extraer componentes
 		const day = date.getDate().toString().padStart(2, '0');
 		const month = (date.getMonth() + 1).toString().padStart(2, '0');
 		const year = date.getFullYear();
@@ -142,12 +132,10 @@ export default function EditService() {
 
 	const snapPoints = useMemo(() => ['100%'], []);
 
-	// Obtener datos después de todos los hooks
 	const delivery = GetDelivery.data?.data;
 	const pickupEvent = delivery?.logisticEvents.find((event) => event.eventType === 'PICKUP');
 	const shippingEvent = delivery?.logisticEvents.find((event) => event.eventType === 'SHIPPING');
 
-	// Calcular valores iniciales SEPARADOS
 	const pickupInitialValues = useMemo(() => {
 		const pickup = delivery?.logisticEvents.find((event) => event.eventType === 'PICKUP');
 		return {
@@ -222,7 +210,7 @@ export default function EditService() {
 	);
 
 	const handleSubmitCreateLogisticEvent = useCallback(
-		(values: CreateLogisticEvent) => {
+		(values: CreateLogisticEvent, formik: FormikHelpers<CreateLogisticEvent>) => {
 			const existingEventLogicPickup = GetDelivery.data?.data.logisticEvents.find(
 				(logistic) => logistic.eventType === 'PICKUP'
 			);
@@ -253,6 +241,8 @@ export default function EditService() {
 				coordinates: `${currentCoordinates.latitude},${currentCoordinates.longitude}`,
 				dateTime: isoDateTime,
 			});
+
+			formik.resetForm();
 		},
 		[currentCoordinates, id, CreateLogistic]
 	);
@@ -261,7 +251,10 @@ export default function EditService() {
 		return (
 			<Screen>
 				<View className='flex-1 justify-center items-center'>
-					<Spinner size='large' />
+					<Spinner
+						size='large'
+						color={Colors.dark.primary}
+					/>
 				</View>
 			</Screen>
 		);
@@ -279,18 +272,29 @@ export default function EditService() {
 					keyboardShouldPersistTaps='handled'
 					showsVerticalScrollIndicator={false}>
 					<View className='mb-6'>
-						<View className='flex-row justify-between items-center mb-3'>
+						<View className='flex-row items-center mb-3 gap-3'>
 							<View
-								className='rounded-full self-start px-3 py-1'
+								className='rounded-full px-3 py-1'
 								style={{
 									backgroundColor: paymentTypeReturnData(delivery.paymentType).color,
 								}}>
-								<CustomText className='text-neutral-100 text-xs'>
+								<CustomText className='text-neutral-100 text'>
 									{paymentTypeReturnData(delivery.paymentType).name}
 								</CustomText>
 							</View>
-							<View className='rounded-full self-start px-3 py-1 bg-green-600'>
-								<CustomText className='text-neutral-100 text-xs'>{delivery.cleaningStatus}</CustomText>
+
+							<View
+								className='rounded-xl px-3 py-1 my-3 bg-green-600/20'
+								style={{
+									backgroundColor: statusReturnTypeData(delivery.cleaningStatus).color,
+								}}>
+								<CustomText
+									className='capitalize'
+									styleCustom={{
+										color: 'white',
+									}}>
+									{statusReturnTypeData(delivery.cleaningStatus).name}
+								</CustomText>
 							</View>
 						</View>
 
@@ -307,7 +311,6 @@ export default function EditService() {
 						</CustomText>
 					</View>
 
-					{/* PRIMER FORMIK - SOLO RECOJO */}
 					{pickupEvent && (
 						<Formik
 							initialValues={pickupInitialValues}
@@ -319,11 +322,11 @@ export default function EditService() {
 								);
 
 								return (
-									<View className='mb-6 bg-neutral-800 p-4 rounded-lg'>
+									<View className='mb-6 bg-neutral-900 p-4 rounded-lg'>
 										<CustomText
 											className='text-neutral-100 mb-4 text-lg'
 											variantWeight={weight.Medium}>
-											Recojo{' '}
+											Recojo
 											{pickupEvent?.id && (
 												<CustomText className='text-neutral-400 text-sm'>(ID: {pickupEvent.id})</CustomText>
 											)}
@@ -383,7 +386,7 @@ export default function EditService() {
 												}}>
 												<SelectTrigger
 													className='justify-between'
-													style={{ borderWidth: 0, backgroundColor: '#262626', borderRadius: 12 }}
+													style={{ borderWidth: 0, backgroundColor: '#26282b', borderRadius: 12 }}
 													variant='rounded'
 													size='md'>
 													<SelectInput
@@ -418,11 +421,20 @@ export default function EditService() {
 										</View>
 
 										<Button
-											text='Elegir Ubicación Recojo'
 											variant='light'
 											onPress={() => router.push('/(admin)/(tabs)/service-carpets/map-view')}
-											className='mb-3'
-										/>
+											className='mb-3 flex-row items-center gap-3'>
+											<MaterialIcons
+												name='location-pin'
+												size={24}
+												color='white'
+											/>
+											<CustomText
+												className='text-neutral-100'
+												variantWeight={weight.Title}>
+												Elegir Ubicación Recojo
+											</CustomText>
+										</Button>
 
 										<Button
 											text={pickupEvent?.id ? 'Actualizar Recojo' : 'Crear Recojo'}
@@ -448,11 +460,11 @@ export default function EditService() {
 								);
 
 								return (
-									<View className='mb-6 bg-neutral-800 p-4 rounded-lg'>
+									<View className='mb-6 bg-neutral-900 p-4 rounded-lg'>
 										<CustomText
 											className='text-neutral-100 mb-4 text-lg'
 											variantWeight={weight.Medium}>
-											Envío{' '}
+											Envío
 											{shippingEvent?.id && (
 												<CustomText className='text-neutral-400 text-sm'>(ID: {shippingEvent.id})</CustomText>
 											)}
@@ -512,7 +524,7 @@ export default function EditService() {
 												}}>
 												<SelectTrigger
 													className='justify-between'
-													style={{ borderWidth: 0, backgroundColor: '#262626', borderRadius: 12 }}
+													style={{ borderWidth: 0, backgroundColor: '#26282b', borderRadius: 12 }}
 													variant='rounded'
 													size='md'>
 													<SelectInput
@@ -546,18 +558,42 @@ export default function EditService() {
 											</Select>
 										</View>
 
-										<Button
+										{/* <Button
 											text='Elegir Ubicación Envío'
 											variant='light'
 											onPress={() => router.push('/(admin)/(tabs)/service-carpets/map-view')}
-											className='mb-3'
+											className='mb-3 mt-5'
 										/>
 
 										<Button
+											variant='outline'
 											text={shippingEvent?.id ? 'Actualizar Envío' : 'Crear Envío'}
 											onPress={() => handleSubmit()}
 											disabled={CreateLogistic.isPending}
 											isLoading={CreateLogistic.isPending}
+										/> */}
+
+										<Button
+											variant='light'
+											onPress={() => router.push('/(admin)/(tabs)/service-carpets/map-view')}
+											className='mb-3 flex-row items-center gap-3'>
+											<MaterialIcons
+												name='location-pin'
+												size={24}
+												color='white'
+											/>
+											<CustomText
+												className='text-neutral-100'
+												variantWeight={weight.Title}>
+												Elegir Ubicación Envío
+											</CustomText>
+										</Button>
+
+										<Button
+											text={'Guardar Envío'}
+											onPress={() => handleSubmit()}
+											disabled={UpdateLogistic.isPending}
+											isLoading={UpdateLogistic.isPending}
 										/>
 									</View>
 								);
@@ -565,13 +601,23 @@ export default function EditService() {
 						</Formik>
 					)}
 
-					{/* Botón para crear nuevo evento */}
-					<Button
-						text='Crear Nuevo Evento'
-						variant='outline'
-						className='mb-6'
-						onPress={() => bottomSheetRef.current?.expand()}
-					/>
+					<View className='w-full py-4'>
+						<Button
+							text='Crear Delivery'
+							className='flex-row items-center gap-2'
+							onPress={() => bottomSheetRef.current?.expand()}>
+							<Ionicons
+								name='add'
+								size={20}
+								color='white'
+							/>
+							<CustomText
+								className='text-neutral-100'
+								variantWeight={weight.Title}>
+								Crear Nuevo Evento
+							</CustomText>
+						</Button>
+					</View>
 				</ScrollView>
 			</KeyboardAvoidingView>
 
@@ -582,7 +628,7 @@ export default function EditService() {
 				snapPoints={snapPoints}
 				enablePanDownToClose={true}
 				handleIndicatorStyle={{ backgroundColor: '#fff' }}
-				backgroundStyle={{ backgroundColor: '#262626' }}
+				backgroundStyle={{ backgroundColor: '#171717' }}
 				enableContentPanningGesture={true}
 				enableHandlePanningGesture={true}
 				enableDynamicSizing={false}
@@ -592,7 +638,7 @@ export default function EditService() {
 					style={{ flex: 1 }}
 					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 					<BottomSheetScrollView
-						style={{ backgroundColor: '#262626', position: 'relative', padding: 12 }}
+						style={{ backgroundColor: '#171717', position: 'relative', padding: 12 }}
 						nestedScrollEnabled={true}
 						contentContainerStyle={{
 							paddingBottom: Platform.select({ ios: 300, android: 250 }),

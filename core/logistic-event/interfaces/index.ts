@@ -6,7 +6,8 @@ export interface LogisticEvent {
 	coordinates: string;
 	locationName: string;
 	locationReference: string;
-	assignmentStatus: CleaningStatus;
+	assignmentStatus: AssignmentStatus;
+	cleaningStatus: CleaningStatus;
 	cleanerId: number;
 	dateTime: string;
 	deliveryId: number;
@@ -33,4 +34,5 @@ export interface UpdateLogisticEvent {
 	deliveryId: string;
 	assignmentStatus: AssignmentStatus;
 	dateTime: string;
+	cleaningStatus: CleaningStatus;
 }

@@ -11,6 +11,7 @@ export const useUpdateDelivery = () => {
 		onSuccess: (response) => {
 			toastSuccess('Servicio actualizado correctamente');
 			queryClient.invalidateQueries({ queryKey: ['list-deliverys-filter'] });
+			queryClient.invalidateQueries({ queryKey: ['list-deliverys-cleaner-filter'] });
 			queryClient.invalidateQueries({ queryKey: ['list-delivery'] });
 		},
 

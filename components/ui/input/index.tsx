@@ -65,7 +65,7 @@ export default function Input(props: Props) {
 					paddingHorizontal: 8,
 					borderRadius: 12,
 					borderColor: error === true ? '#ef4444' : 'transparent',
-					backgroundColor: error === true ? 'rgba(159, 18, 57, 0.4)' : 'rgba(62, 69, 73, 0.5)',
+					backgroundColor: error === true ? 'rgba(159, 18, 57, 0.4)' : '#26282b',
 				}}>
 				{IconLeft && <View>{IconLeft}</View>}
 

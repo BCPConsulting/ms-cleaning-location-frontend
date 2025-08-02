@@ -12,6 +12,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 import '../global.css';
+import { usePaymentValidation } from '@/presentation/auth/hooks/use-payment-validation';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,11 +38,10 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	const [loaded, error] = useFonts({
-		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-		RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
-		RobotoMedium: require('../assets/fonts/Roboto-Medium.ttf'),
-		RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
-		RobotoSemiBold: require('../assets/fonts/Roboto-SemiBold.ttf'),
+		WorkSansBold: require('../assets/fonts/WorkSans-Bold.ttf'),
+		WorkSansMedium: require('../assets/fonts/WorkSans-Medium.ttf'),
+		WorkSansRegular: require('../assets/fonts/WorkSans-Regular.ttf'),
+		WorkSansSemiBold: require('../assets/fonts/WorkSans-SemiBold.ttf'),
 		SoraBold: require('../assets/fonts/Sora-Bold.ttf'),
 		SoraSemiBold: require('../assets/fonts/Sora-SemiBold.ttf'),
 		SoraRegular: require('../assets/fonts/Sora-Regular.ttf'),

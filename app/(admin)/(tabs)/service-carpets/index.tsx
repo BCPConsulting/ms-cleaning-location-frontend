@@ -9,6 +9,7 @@ import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { Radio, RadioGroup, RadioIndicator, RadioLabel, RadioIcon } from '@/components/ui/radio';
 import { CircleIcon } from '@/components/ui/icon';
+import { Progress, ProgressFilledTrack } from '@/components/ui/progress';
 import { useKeyboard } from '@/hooks/use-key-board';
 import { CreateServiceDelivery, Delivery } from '@/core/delivery/interfaces';
 import { paymentTypeReturnData } from '@/utils/payment-type-return-data';
@@ -25,8 +26,6 @@ const initialValues: CreateServiceDelivery = {
 	status: 'ACTIVE',
 };
 
-const width = Dimensions.get('window').width;
-
 export default function ServiceCarpetsScreen() {
 	const [currentIndex, setCurrentIndex] = useState(1);
 	const { isKeyboardVisible, dismissKeyboard } = useKeyboard();
@@ -38,8 +37,6 @@ export default function ServiceCarpetsScreen() {
 	});
 	const { CreateDelivery } = useCreateDelivery();
 	const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-
-	console.log('ListDeliveriesFilter', JSON.stringify(ListDeliveriesFilter.data?.data, null, 2));
 
 	const snapPoints = useMemo(() => ['100%'], []);
 
@@ -67,35 +64,62 @@ export default function ServiceCarpetsScreen() {
 	}, []);
 
 	const renderItem = useCallback(({ item }: { item: Delivery }) => {
+		const progressValuePercentaje = (() => {
+			if (item.cleaningStatus === 'PENDING')
+				return {
+					value: 0,
+					name: 'Servicio pendiente',
+				};
+			if (item.cleaningStatus === 'IN_PROGRESS')
+				return {
+					value: 50,
+					name: 'Esperando proceso de limpieza',
+				};
+			return {
+				value: 100,
+				name: 'Completado',
+			};
+		})();
+
 		return (
 			<View
 				style={{
-					width: width / 2 - 21,
-					// height: 100,
+					flex: 1,
 				}}>
-				<View className='flex-1 p-3 bg-neutral-800 border border-neutral-600 rounded-xl'>
-					<View className='flex-row justify-between items-center'>
-						<CustomText className='text-neutral-200'>#{item.id}</CustomText>
-					</View>
+				<View className='flex-1 p-3 bg-neutral-800 rounded-xl'>
 					<View>
 						<CustomText
-							className='text-neutral-100'
+							className='text-neutral-100 lg'
 							variantWeight={weight.Medium}>
 							{item.clientName}
 						</CustomText>
 					</View>
 
-					<View
-						className='rounded-xl self-start px-4 py-1 my-3'
-						style={{
-							backgroundColor: paymentTypeReturnData(item.paymentType).color,
-						}}>
-						<CustomText className='text-neutral-100 text-sm'>{paymentTypeReturnData(item.paymentType).name}</CustomText>
+					<View className='flex-row justify-between items-center'>
+						<CustomText className='text-neutral-500 text-sm'>Delivery #{item.id}</CustomText>
+					</View>
+
+					<View className='rounded-xl self-start px-4 py-1 my-3 bg-green-600/20'>
+						<CustomText
+							className='text-green-500 text-sm capitalize'
+							variantWeight={weight.Medium}>
+							{item.status}
+						</CustomText>
+					</View>
+
+					<View className='mb-3'>
+						<Progress
+							value={progressValuePercentaje.value}
+							className='w-full h-2'>
+							<ProgressFilledTrack className='h-2 bg-emerald-600' />
+						</Progress>
+
+						<CustomText className='text-neutral-300 text-sm mt-1'>{progressValuePercentaje.name}</CustomText>
 					</View>
 
 					<View>
 						<Pressable
-							className='flex-row bg-neutral-900 items-center gap-2 p-3 rounded-xl'
+							className='flex-row bg-neutral-950 items-center gap-2 p-3 rounded-xl  justify-center'
 							onPress={() =>
 								router.push({
 									pathname: '/(admin)/(tabs)/service-carpets/[id]',
@@ -105,11 +129,11 @@ export default function ServiceCarpetsScreen() {
 								})
 							}>
 							<Ionicons
-								name='eye-outline'
+								name='create-outline'
 								size={20}
 								color='white'
 							/>
-							<CustomText className='text-neutral-100 text-sm'>Ver mas</CustomText>
+							<CustomText className='text-neutral-100 text-sm'>Editar</CustomText>
 						</Pressable>
 					</View>
 				</View>
@@ -141,14 +165,9 @@ export default function ServiceCarpetsScreen() {
 
 	return (
 		<Screen isSafeAreaInsets={false}>
-			<View className='flex-1 relative'>
+			<View className='flex-1 relative px-4'>
 				<FlatList
-					numColumns={2}
 					data={transformedDeliveries ?? []}
-					columnWrapperStyle={{
-						justifyContent: 'space-between',
-						paddingHorizontal: 16,
-					}}
 					ItemSeparatorComponent={() => <View className='h-3' />}
 					keyExtractor={keyExtractor}
 					horizontal={false}
@@ -157,17 +176,28 @@ export default function ServiceCarpetsScreen() {
 						<RefreshControl
 							refreshing={isManualRefreshing}
 							onRefresh={handleRefresh}
-							colors={['#10b981']} // Verde en Android
-							tintColor='#10b981' // Verde en iOS
+							colors={['#10b981']}
+							tintColor='#10b981'
 						/>
 					}
 				/>
 
-				<View className='w-full py-4 px-4'>
+				<View className='w-full py-4'>
 					<Button
 						text='Crear Delivery'
-						onPress={() => bottomSheetRef.current?.expand()}
-					/>
+						className='flex-row items-center gap-2'
+						onPress={() => bottomSheetRef.current?.expand()}>
+						<Ionicons
+							name='add'
+							size={20}
+							color='white'
+						/>
+						<CustomText
+							className='text-neutral-100'
+							variantWeight={weight.Title}>
+							Crear Delivery
+						</CustomText>
+					</Button>
 				</View>
 
 				<BottomSheet
@@ -176,17 +206,17 @@ export default function ServiceCarpetsScreen() {
 					snapPoints={snapPoints}
 					enablePanDownToClose={true}
 					handleIndicatorStyle={{ backgroundColor: '#fff' }}
-					backgroundStyle={{ backgroundColor: '#262626' }}
+					backgroundStyle={{ backgroundColor: '#171717' }}
 					enableContentPanningGesture={true}
 					enableHandlePanningGesture={true}
-					enableDynamicSizing={false}
+					enableDynamicSizing={true}
 					onChange={handleSheetChanges}
 					keyboardBehavior='fillParent'>
 					<KeyboardAvoidingView
 						style={{ flex: 1 }}
 						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 						<BottomSheetScrollView
-							style={{ backgroundColor: '#262626', position: 'relative', padding: 12 }}
+							style={{ backgroundColor: '#171717', position: 'relative', padding: 12 }}
 							nestedScrollEnabled={true}
 							contentContainerStyle={{
 								paddingBottom: Platform.select({ ios: 300, android: 250 }),
