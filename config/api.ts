@@ -3,8 +3,8 @@ import * as SecureStore from 'expo-secure-store';
 
 export const api = axios.create({
 	// baseURL: API_URL,
-	baseURL: 'http://192.168.18.8:8080/api',
-	// baseURL: 'https://ms-cleaning-location.onrender.com/api',
+	// baseURL: 'http://192.168.18.8:8080/api',
+	baseURL: 'https://ms-cleaning-location.onrender.com/api',
 });
 
 api.interceptors.request.use(async (config) => {
