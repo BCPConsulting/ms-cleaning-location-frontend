@@ -11,45 +11,78 @@ import { paymentValidationAction, validateTokenAction, refreshTokenAction } from
 export default function Page() {
 	const { user, loadSession, status, changeStatus } = useAuthStore();
 	const [isInitializing, setIsInitializing] = useState(true);
+
 	const [validationPayment, setValidationPayment] = useState<string>('');
 	const [isPaymentLoading, setIsPaymentLoading] = useState(true);
 	const [paymentError, setPaymentError] = useState(false);
-	const [isTokenValidating, setIsTokenValidating] = useState(true);
+	const [paymentValidated, setPaymentValidated] = useState(false);
+
+	const [isTokenValidating, setIsTokenValidating] = useState(false);
 	const [tokenError, setTokenError] = useState(false);
+	const [authComplete, setAuthComplete] = useState(false);
 
-	// ✅ 1. Cargar sesión al inicio
 	useEffect(() => {
-		loadSession();
-	}, [loadSession]);
+		const checkPaymentValidation = async () => {
+			try {
+				setIsPaymentLoading(true);
+				setPaymentError(false);
 
-	// ✅ 2. Validar token cuando haya usuario autenticado
+				const response = await paymentValidationAction();
+
+				const paymentStatus = response.data || '';
+
+				setValidationPayment(paymentStatus);
+
+				if (paymentStatus === 'ACTIVE') {
+					setPaymentValidated(true);
+				} else {
+					setPaymentValidated(false);
+					setAuthComplete(true);
+				}
+			} catch (error) {
+				console.error('💥 Error verificando pago:', error);
+				setPaymentError(true);
+				setPaymentValidated(false);
+				setAuthComplete(true);
+			} finally {
+				setIsPaymentLoading(false);
+			}
+		};
+
+		checkPaymentValidation();
+	}, []);
+
 	useEffect(() => {
+		if (paymentValidated && !isPaymentLoading) {
+			loadSession();
+		}
+	}, [paymentValidated, isPaymentLoading, loadSession]);
+
+	useEffect(() => {
+		if (!paymentValidated || isPaymentLoading) {
+			return;
+		}
+
 		const handleTokenValidation = async () => {
 			try {
 				setIsTokenValidating(true);
 				setTokenError(false);
 
-				console.log('🔐 Validando token...');
 				const tokenValidation = await validateTokenAction();
-				console.log('📝 Token validation result:', tokenValidation.data);
 
 				if (tokenValidation.data === 'EXPIRED') {
-					console.log('⏰ Token expirado, intentando refresh...');
 					try {
 						const refreshResponse = await refreshTokenAction();
-						console.log('🔄 Token refreshed successfully');
 
 						if (refreshResponse.data?.token && user) {
 							await changeStatus(refreshResponse.data.token, user);
-							console.log('✅ Token actualizado en el store');
 						}
 					} catch (refreshError) {
 						console.error('💥 Error refreshing token:', refreshError);
-						router.replace('/auth/sign-in');
-						return;
+						setTokenError(true);
 					}
 				} else if (tokenValidation.data === 'NOT_EXPIRED') {
-					console.log('✅ Token válido, continuando...');
+					console.log('✅ Token válido');
 				} else {
 					console.log('⚠️ Estado de token desconocido:', tokenValidation.data);
 					setTokenError(true);
@@ -57,116 +90,65 @@ export default function Page() {
 			} catch (error) {
 				console.error('💥 Error validating token:', error);
 				setTokenError(true);
-				router.replace('/auth/sign-in');
 			} finally {
 				setIsTokenValidating(false);
+				setAuthComplete(true);
 			}
 		};
 
 		if (user?.token && status === 'AUTHENTICATE') {
 			handleTokenValidation();
+		} else if (status === 'UNAUTHENTICATE' || !user?.token) {
+			setTokenError(true);
+			setAuthComplete(true);
 		} else if (status !== 'CHECKING') {
-			// Si no hay token o no está autenticado, saltar validación
 			setIsTokenValidating(false);
+			setAuthComplete(true);
 		}
-	}, [user?.token, status, changeStatus]);
+	}, [paymentValidated, user?.token, status, changeStatus]);
 
-	// ✅ 3. Validar pago cuando el token esté validado
 	useEffect(() => {
-		const checkPaymentValidation = async () => {
-			try {
-				setIsPaymentLoading(true);
-				setPaymentError(false);
+		const allValidationsComplete = !isPaymentLoading && authComplete;
 
-				console.log('💰 Verificando estado de pago...');
-				const response = await paymentValidationAction();
-				console.log('💰 Payment response:', response);
-
-				setValidationPayment(response.data || '');
-			} catch (error) {
-				console.error('💥 Error verificando pago:', error);
-				setPaymentError(true);
-				setValidationPayment('');
-			} finally {
-				setIsPaymentLoading(false);
-			}
-		};
-
-		// Solo verificar pago si el token es válido y el usuario está autenticado
-		if (!isTokenValidating && !tokenError && user?.token && status === 'AUTHENTICATE') {
-			checkPaymentValidation();
-		} else if (!user?.token || status === 'UNAUTHENTICATE') {
-			// Si no hay token, saltar validación de pago
-			setIsPaymentLoading(false);
+		if (!allValidationsComplete) {
+			return;
 		}
-	}, [isTokenValidating, tokenError, user?.token, status]);
 
-	// ✅ 4. Manejar navegación cuando todo esté listo (SIN useCallback)
-	useEffect(() => {
-		const handleNavigation = async () => {
-			console.log('🔍 Checking navigation conditions:', {
-				status,
-				isTokenValidating,
-				isPaymentLoading,
-				tokenError,
-				paymentError,
-				hasUser: !!user?.token,
-				validationPayment,
-			});
-
-			// Esperar a que todo termine
-			if (status === 'CHECKING' || isTokenValidating || isPaymentLoading) {
-				console.log('⏳ Still loading...');
-				return;
-			}
-
-			// Manejar errores de token
-			if (tokenError) {
-				console.log('❌ Token error, will show error screen');
+		const handleNavigation = () => {
+			// Si hay error de pago
+			if (paymentError) {
 				setIsInitializing(false);
 				return;
 			}
 
-			// Si no hay usuario autenticado
-			if (!user?.token || status === 'UNAUTHENTICATE') {
-				console.log('❌ No authenticated user, redirecting to sign-in');
+			// Si pago no está activo
+			if (!paymentValidated || validationPayment !== 'ACTIVE') {
+				setIsInitializing(false);
+				return;
+			}
+
+			// Si hay error de token/autenticación
+			if (tokenError || !user?.token || status === 'UNAUTHENTICATE') {
 				router.replace('/auth/sign-in');
 				setIsInitializing(false);
 				return;
 			}
 
-			// Usuario autenticado, verificar pago
-			if (paymentError) {
-				console.log('❌ Payment error, will show error screen');
-				setIsInitializing(false);
-				return;
-			}
-
-			if (validationPayment === 'ACTIVE') {
-				console.log('🎉 Payment active, navigating by role:', user.role);
-
-				if (user.role === 'ADMIN' || user.role === 'OWNER') {
-					console.log('🚀 Navigating to admin panel');
-					router.replace('/(admin)/(tabs)/user');
-				} else if (user.role === 'CLEANER') {
-					console.log('🚀 Navigating to cleaner panel');
-					router.replace('/(cleaner)/(tabs)/user');
-				} else {
-					console.log('⚠️ Unknown role:', user.role);
-					router.replace('/auth/sign-in');
-				}
+			// Todo OK - Navegar según rol
+			if (user.role === 'ADMIN' || user.role === 'OWNER') {
+				router.replace('/(admin)/(tabs)/user');
+			} else if (user.role === 'CLEANER') {
+				router.replace('/(cleaner)/(tabs)/user');
 			} else {
-				console.log('⚠️ Payment not active:', validationPayment);
-				// Se mostrará la pantalla negra
+				router.replace('/auth/sign-in');
 			}
 
 			setIsInitializing(false);
 		};
 
 		handleNavigation();
-	}, [status, isTokenValidating, isPaymentLoading, tokenError, paymentError, user?.token, user?.role, validationPayment]);
+	}, [isPaymentLoading, authComplete, paymentValidated, validationPayment, tokenError, paymentError, user, status]);
 
-	// ✅ 5. Permisos de ubicación (independiente)
 	useEffect(() => {
 		async function getCurrentLocation() {
 			try {
@@ -184,18 +166,13 @@ export default function Page() {
 		getCurrentLocation();
 	}, []);
 
-	// ✅ Loading states
-	if (status === 'CHECKING' || isInitializing || isTokenValidating || isPaymentLoading) {
-		const loadingMessage =
-			status === 'CHECKING'
-				? 'Verificando sesión...'
-				: isTokenValidating
-				? 'Validando token...'
-				: isPaymentLoading
-				? 'Validando pago...'
-				: 'Inicializando...';
-
-		console.log('🔄 Showing loading:', loadingMessage);
+	// ✅ LOADING STATES
+	if (isInitializing && (isPaymentLoading || isTokenValidating)) {
+		const loadingMessage = isPaymentLoading
+			? 'Validando estado de cuenta...'
+			: isTokenValidating
+			? 'Verificando sesión...'
+			: 'Inicializando...';
 
 		return (
 			<GluestackUIProvider mode='dark'>
@@ -212,84 +189,13 @@ export default function Page() {
 		);
 	}
 
-	// ✅ Error de token
-	if (tokenError) {
-		console.log('🔴 Showing token error screen');
-		return (
-			<GluestackUIProvider mode='dark'>
-				<Screen>
-					<View
-						style={{
-							flex: 1,
-							backgroundColor: '#000000',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}>
-						<ThemedText
-							style={{
-								fontSize: 18,
-								color: '#ff6b6b',
-								textAlign: 'center',
-								paddingHorizontal: 40,
-							}}>
-							Tu sesión ha expirado.{'\n'}
-							Por favor, inicia sesión nuevamente.
-						</ThemedText>
-					</View>
-				</Screen>
-			</GluestackUIProvider>
-		);
-	}
-
-	// ✅ Pantalla negra si pago no está activo
-	if (validationPayment !== 'ACTIVE' && !paymentError) {
-		console.log('🖤 Showing inactive payment screen');
-		return (
-			<GluestackUIProvider mode='dark'>
-				<Screen>
-					<View
-						style={{
-							flex: 1,
-							backgroundColor: '#000000',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}>
-						<ThemedText
-							style={{
-								fontSize: 18,
-								opacity: 0.6,
-								textAlign: 'center',
-								paddingHorizontal: 40,
-							}}>
-							Tu cuenta no está activa.{'\n'}
-							Contacta con soporte para más información.
-						</ThemedText>
-					</View>
-				</Screen>
-			</GluestackUIProvider>
-		);
-	}
-
-	// ✅ Error en payment validation
+	// ✅ ERROR DE PAGO
 	if (paymentError) {
-		console.log('🔴 Showing payment error screen');
 		return (
 			<GluestackUIProvider mode='dark'>
 				<Screen>
-					<View
-						style={{
-							flex: 1,
-							backgroundColor: '#000000',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}>
-						<ThemedText
-							style={{
-								fontSize: 18,
-								color: '#ff6b6b',
-								textAlign: 'center',
-								paddingHorizontal: 40,
-							}}>
+					<View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+						<ThemedText style={{ fontSize: 18, color: '#ff6b6b', textAlign: 'center', paddingHorizontal: 40 }}>
 							Error al verificar el estado de tu cuenta.{'\n'}
 							Por favor, intenta más tarde.
 						</ThemedText>
@@ -299,8 +205,23 @@ export default function Page() {
 		);
 	}
 
-	// ✅ Fallback (no debería llegar aquí)
-	console.log('⚠️ Reached fallback screen');
+	// ✅ PAGO INACTIVO
+	if (validationPayment !== 'ACTIVE') {
+		return (
+			<GluestackUIProvider mode='dark'>
+				<Screen>
+					<View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+						<ThemedText style={{ fontSize: 18, opacity: 0.6, textAlign: 'center', paddingHorizontal: 40 }}>
+							Tu cuenta no está activa.{'\n'}
+							Contacta con soporte para más información.
+						</ThemedText>
+					</View>
+				</Screen>
+			</GluestackUIProvider>
+		);
+	}
+
+	// ✅ Fallback
 	return (
 		<GluestackUIProvider mode='dark'>
 			<Screen>
