@@ -44,7 +44,11 @@ export default function Assignments() {
 	const renderItem = useCallback(
 		({ item }: { item: AssignmentAdminResponse }) => {
 			return (
-				<View className='w-full flex-1'>
+				<View
+					className='w-full'
+					style={{
+						flex: 1,
+					}}>
 					<View className='p-4 bg-neutral-800 rounded-xl'>
 						<View className='flex-row items-center justify-between'>
 							<CustomText className='text-neutral-200'>#{item.id}</CustomText>

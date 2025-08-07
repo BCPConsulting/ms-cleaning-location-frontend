@@ -30,11 +30,13 @@ export const createAppointmentAction = async (values: CreateApppointmentRequest)
  * @description Actualiar cita de servicio
  */
 export const updateAppoinmentAction = async (values: UpdateApppointmentRequest): Promise<ApiResponse<Appointment>> => {
+	console.log('Values', JSON.stringify(values, null, 2));
+
 	try {
 		const { data } = await api.put(`/appointments/${values.appoinmentId}`, {
 			dateTime: values.dateTime,
 			coordinates: values.coordinates,
-			phone: values.phone,
+			cel: values.phone,
 			price: values.price,
 			detail: values.detail,
 			cleanerId: values.cleanerId,
@@ -77,6 +79,7 @@ export const getAssignmentsOwnerAction = async (
 				pageNumber: values.pageNumber,
 				paymentType: values.paymentType,
 				cleanerId: values.cleanerId,
+				cleaningStatus: values.cleaningStatus,
 			},
 		});
 

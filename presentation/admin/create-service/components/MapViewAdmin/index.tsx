@@ -52,6 +52,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 		to: defaultDate,
 		pageNumber: 1,
 		pageSize: 10000,
+		cleaningStatus: 'PENDING',
 	});
 	const { GetCleaners } = useGetAllCleaners();
 	const queryClient = useQueryClient();

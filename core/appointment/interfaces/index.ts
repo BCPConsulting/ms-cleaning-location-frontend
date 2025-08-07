@@ -37,6 +37,7 @@ export interface FilterAssignmentAdminRequest {
 	pageNumber: number;
 	cleanerId?: number;
 	paymentType?: PaymentType;
+	cleaningStatus?: CleaningStatus;
 }
 
 export interface AssignmentAdminResponse {
