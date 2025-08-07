@@ -20,6 +20,7 @@ export interface CreateLogisticEvent {
 	locationReference: string;
 	cleanerId: string;
 	deliveryId: string;
+	cleaningStatus: CleaningStatus;
 	assignmentStatus: AssignmentStatus;
 	dateTime: string;
 }
@@ -35,4 +36,15 @@ export interface UpdateLogisticEvent {
 	assignmentStatus: AssignmentStatus;
 	dateTime: string;
 	cleaningStatus: CleaningStatus;
+}
+
+export interface FormLogisticEvent {
+	eventType: LogisticEventType;
+	coordinates: string;
+	locationName: string;
+	locationReference: string;
+	cleanerId: string;
+	deliveryId: string;
+	assignmentStatus: AssignmentStatus;
+	dateTime: string;
 }

@@ -4,20 +4,19 @@ import { Formik, FormikHelpers } from 'formik';
 import MapView, { LatLng } from 'react-native-maps';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import GooglePlacesTextInput, { Place } from 'react-native-google-places-textinput';
+import { useNavigation } from 'expo-router';
 import { Screen } from '@/components/ui/screen';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import { useCreateAppointment } from '@/presentation/appoinment/hooks/use-create-appointment';
 import { AssignmentAdminResponse, CreateApppointmentRequest } from '@/core/appointment/interfaces';
 import MapViewAdmin from '@/presentation/admin/create-service/components/MapViewAdmin';
-import { useNavigation } from 'expo-router';
 import { DrawerActions } from '@react-navigation/native';
 import { useKeyboard } from '@/hooks/use-key-board';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomText, weight } from '@/components/ui/custom-text';
 import { statusReturnTypeData } from '@/utils/status-type-return-data';
 import validationCreateAppoinment from '@/presentation/appoinment/validation/create-service-validation';
-import { useFocusEffect } from 'expo-router';
 
 const initialValue: CreateApppointmentRequest = {
 	coordinates: '',
@@ -26,7 +25,7 @@ const initialValue: CreateApppointmentRequest = {
 	clientName: '',
 	locationName: '',
 	locationReference: '',
-	cel: '',
+	phone: '',
 };
 
 export default function CreateServiceScreen() {
@@ -75,7 +74,7 @@ export default function CreateServiceScreen() {
 			clientName: values.clientName,
 			locationName: values.locationName,
 			locationReference: values.locationReference,
-			cel: values.cel,
+			phone: values.phone,
 		});
 
 		formik.resetForm();
@@ -100,10 +99,6 @@ export default function CreateServiceScreen() {
 		},
 		[currentIndex, isKeyboardVisible, dismissKeyboard]
 	);
-
-	const focusHook = useCallback((callback: () => void) => {
-		useFocusEffect(callback);
-	}, []);
 
 	return (
 		<Screen>
@@ -174,7 +169,6 @@ export default function CreateServiceScreen() {
 						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 						<BottomSheetScrollView
 							style={{ backgroundColor: '#121315', position: 'relative', padding: 12 }}
-							focusHook={focusHook}
 							nestedScrollEnabled={true}
 							contentContainerStyle={{
 								paddingBottom: Platform.select({ ios: 300, android: 260 }),
@@ -202,12 +196,12 @@ export default function CreateServiceScreen() {
 											<Input
 												label='Celular'
 												placeholder='999999999'
-												value={values.cel}
-												onChangeText={handleChange('cel')}
+												value={values.phone}
+												onChangeText={handleChange('phone')}
 												onFocus={() => bottomSheetRef.current?.expand()}
-												name='cel'
-												onBlur={handleBlur('cel')}
-												error={!!(touched.cel && errors.cel)}
+												name='phone'
+												onBlur={handleBlur('phone')}
+												error={!!(touched.phone && errors.phone)}
 											/>
 										</View>
 
@@ -303,7 +297,7 @@ export default function CreateServiceScreen() {
 
 					<View className='mb-3'>
 						<CustomText className='text-neutral-400 text-sm'>Nombre celular:</CustomText>
-						<CustomText className='text-neutral-100'>{appointment.cel}</CustomText>
+						<CustomText className='text-neutral-100'>{appointment.phone}</CustomText>
 					</View>
 
 					<View className='mb-3'>
@@ -328,7 +322,7 @@ export default function CreateServiceScreen() {
 
 					<View className='mb-3'>
 						<CustomText className='text-neutral-400 text-sm'>Estado:</CustomText>
-						<CustomText className='text-neutral-100'>{statusReturnTypeData(appointment.cleaningStatus)}</CustomText>
+						<CustomText className='text-neutral-100'>{statusReturnTypeData(appointment.cleaningStatus).name}</CustomText>
 					</View>
 				</BottomSheetScrollView>
 			</BottomSheet>

@@ -21,14 +21,30 @@ export default function Page() {
 	const [tokenError, setTokenError] = useState(false);
 	const [authComplete, setAuthComplete] = useState(false);
 
+	// ✅ NUEVO: Estado para controlar carga de sesión
+	const [sessionLoaded, setSessionLoaded] = useState(false);
+
+	// 🔄 1. PRIMERO: Cargar sesión AL INICIO (antes que todo)
 	useEffect(() => {
+		console.log('🚀 Iniciando carga de sesión...');
+		const initSession = async () => {
+			await loadSession();
+			setSessionLoaded(true);
+			console.log('✅ Sesión inicial cargada');
+		};
+		initSession();
+	}, [loadSession]);
+
+	// 🔄 2. SEGUNDO: Validar pago SOLO si hay sesión válida
+	useEffect(() => {
+		if (!sessionLoaded) return;
+
 		const checkPaymentValidation = async () => {
 			try {
 				setIsPaymentLoading(true);
 				setPaymentError(false);
 
 				const response = await paymentValidationAction();
-
 				const paymentStatus = response.data || '';
 
 				setValidationPayment(paymentStatus);
@@ -50,18 +66,11 @@ export default function Page() {
 		};
 
 		checkPaymentValidation();
-	}, []);
+	}, [sessionLoaded, user, status]);
 
+	// 🔄 3. TERCERO: Validar token si está autenticado y pago es válido
 	useEffect(() => {
-		if (paymentValidated && !isPaymentLoading) {
-			loadSession();
-		}
-	}, [paymentValidated, isPaymentLoading, loadSession]);
-
-	useEffect(() => {
-		if (!paymentValidated || isPaymentLoading) {
-			return;
-		}
+		if (!sessionLoaded || isPaymentLoading || validationPayment === 'INACTIVE') return;
 
 		const handleTokenValidation = async () => {
 			try {
@@ -82,7 +91,7 @@ export default function Page() {
 						setTokenError(true);
 					}
 				} else if (tokenValidation.data === 'NOT_EXPIRED') {
-					console.log('✅ Token válido');
+					console.log('Token válido');
 				} else {
 					console.log('⚠️ Estado de token desconocido:', tokenValidation.data);
 					setTokenError(true);
@@ -96,18 +105,21 @@ export default function Page() {
 			}
 		};
 
-		if (user?.token && status === 'AUTHENTICATE') {
+		// ✅ Validar token solo si hay usuario y pago es válido
+		if (paymentValidated && user?.token && status === 'AUTHENTICATE') {
+			console.log('🔐 Validando token...');
 			handleTokenValidation();
-		} else if (status === 'UNAUTHENTICATE' || !user?.token) {
-			setTokenError(true);
-			setAuthComplete(true);
-		} else if (status !== 'CHECKING') {
+		} else {
+			console.log('⏭️ Saltando validación de token');
 			setIsTokenValidating(false);
 			setAuthComplete(true);
 		}
-	}, [paymentValidated, user?.token, status, changeStatus]);
+	}, [sessionLoaded, paymentValidated, isPaymentLoading, user, status, changeStatus]);
 
+	// 🔄 4. CUARTO: Navegación final
 	useEffect(() => {
+		if (!sessionLoaded) return;
+
 		const allValidationsComplete = !isPaymentLoading && authComplete;
 
 		if (!allValidationsComplete) {
@@ -115,31 +127,31 @@ export default function Page() {
 		}
 
 		const handleNavigation = () => {
-			// Si hay error de pago
 			if (paymentError) {
+				console.log('❌ Error de pago - Mostrando pantalla de error');
 				setIsInitializing(false);
 				return;
 			}
 
-			// Si pago no está activo
 			if (!paymentValidated || validationPayment !== 'ACTIVE') {
+				console.log('❌ Pago inactivo - Mostrando pantalla negra');
 				setIsInitializing(false);
 				return;
 			}
 
-			// Si hay error de token/autenticación
 			if (tokenError || !user?.token || status === 'UNAUTHENTICATE') {
+				console.log('❌ Error de autenticación - Redirigiendo a login');
 				router.replace('/auth/sign-in');
 				setIsInitializing(false);
 				return;
 			}
 
-			// Todo OK - Navegar según rol
 			if (user.role === 'ADMIN' || user.role === 'OWNER') {
 				router.replace('/(admin)/(tabs)/user');
 			} else if (user.role === 'CLEANER') {
 				router.replace('/(cleaner)/(tabs)/user');
 			} else {
+				console.log('⚠️ Rol desconocido - Redirigiendo a login');
 				router.replace('/auth/sign-in');
 			}
 
@@ -147,8 +159,19 @@ export default function Page() {
 		};
 
 		handleNavigation();
-	}, [isPaymentLoading, authComplete, paymentValidated, validationPayment, tokenError, paymentError, user, status]);
+	}, [
+		sessionLoaded,
+		isPaymentLoading,
+		authComplete,
+		paymentError,
+		paymentValidated,
+		validationPayment,
+		tokenError,
+		user,
+		status,
+	]);
 
+	// 🔄 5. Permisos de ubicación (independiente)
 	useEffect(() => {
 		async function getCurrentLocation() {
 			try {
@@ -166,12 +189,13 @@ export default function Page() {
 		getCurrentLocation();
 	}, []);
 
-	// ✅ LOADING STATES
-	if (isInitializing && (isPaymentLoading || isTokenValidating)) {
-		const loadingMessage = isPaymentLoading
+	if (isInitializing && (!sessionLoaded || isPaymentLoading || isTokenValidating)) {
+		const loadingMessage = !sessionLoaded
+			? 'Cargando sesión...'
+			: isPaymentLoading
 			? 'Validando estado de cuenta...'
 			: isTokenValidating
-			? 'Verificando sesión...'
+			? 'Verificando token...'
 			: 'Inicializando...';
 
 		return (
@@ -189,7 +213,7 @@ export default function Page() {
 		);
 	}
 
-	// ✅ ERROR DE PAGO
+	//ERROR DE PAGO
 	if (paymentError) {
 		return (
 			<GluestackUIProvider mode='dark'>
@@ -205,7 +229,7 @@ export default function Page() {
 		);
 	}
 
-	// ✅ PAGO INACTIVO
+	//PAGO INACTIVO
 	if (validationPayment !== 'ACTIVE') {
 		return (
 			<GluestackUIProvider mode='dark'>
@@ -221,7 +245,7 @@ export default function Page() {
 		);
 	}
 
-	// ✅ Fallback
+	//Fallback
 	return (
 		<GluestackUIProvider mode='dark'>
 			<Screen>

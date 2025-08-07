@@ -34,8 +34,8 @@ export default function ReportScreen() {
 		to: timeEnd,
 		pageNumber: 1,
 		pageSize: 10,
-		cleanerId: selectedCleanerId,
-		paymentType: selectedPaymentType,
+		cleanerId: selectedCleanerId!,
+		paymentType: selectedPaymentType!,
 	});
 
 	const { GetCleaners } = useGetAllCleaners();

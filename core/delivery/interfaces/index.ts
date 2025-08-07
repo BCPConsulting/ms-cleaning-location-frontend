@@ -6,6 +6,7 @@ export interface Delivery {
 	price: number;
 	paymentType: PaymentType;
 	cleaningStatus: CleaningStatus;
+	phone: string;
 	status: Status;
 	clientName: string;
 	logisticEvents: LogisticEvent[];
@@ -18,6 +19,7 @@ export interface DeliveryFilter {
 	cleaningStatus: CleaningStatus;
 	status: Status;
 	clientName: string;
+	phone: string;
 	logisticEvents: LogisticEvent[];
 }
 
@@ -27,6 +29,7 @@ export interface CreateServiceDelivery {
 	clientName: string;
 	status: Status;
 	cleaningStatus: CleaningStatus;
+	phone: string;
 }
 
 export interface UpdateServiceDelivery {

@@ -19,6 +19,7 @@ export const useListAssignmentsAdmin = (values: FilterAssignmentAdminRequest) =>
 			if (user.role === 'ADMIN') {
 				return getAssignmentsAdminAction(formattedValues);
 			} else {
+				console.log('Consumiendo getAssignmentsOwnerAction');
 				return getAssignmentsOwnerAction(formattedValues);
 			}
 		},

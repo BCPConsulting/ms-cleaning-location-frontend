@@ -24,6 +24,7 @@ const initialValues: CreateServiceDelivery = {
 	clientName: '',
 	cleaningStatus: 'PENDING',
 	status: 'ACTIVE',
+	phone: '',
 };
 
 export default function ServiceCarpetsScreen() {
@@ -63,83 +64,88 @@ export default function ServiceCarpetsScreen() {
 		}
 	}, []);
 
-	const renderItem = useCallback(({ item }: { item: Delivery }) => {
-		const progressValuePercentaje = (() => {
-			if (item.cleaningStatus === 'PENDING')
+	const renderItem = useCallback(
+		({ item }: { item: Delivery }) => {
+			const progressValuePercentaje = (() => {
+				if (item.cleaningStatus === 'PENDING')
+					return {
+						value: 0,
+						name: 'Servicio pendiente',
+					};
+				if (item.cleaningStatus === 'IN_PROGRESS')
+					return {
+						value: 50,
+						name: 'Esperando proceso de limpieza',
+					};
 				return {
-					value: 0,
-					name: 'Servicio pendiente',
+					value: 100,
+					name: 'Completado',
 				};
-			if (item.cleaningStatus === 'IN_PROGRESS')
-				return {
-					value: 50,
-					name: 'Esperando proceso de limpieza',
-				};
-			return {
-				value: 100,
-				name: 'Completado',
-			};
-		})();
+			})();
 
-		return (
-			<View
-				style={{
-					flex: 1,
-				}}>
-				<View className='flex-1 p-3 bg-neutral-800 rounded-xl'>
-					<View>
-						<CustomText
-							className='text-neutral-100 lg'
-							variantWeight={weight.Medium}>
-							{item.clientName}
-						</CustomText>
-					</View>
+			return (
+				<View
+					style={{
+						flex: 1,
+					}}>
+					<View className='flex-1 p-3 bg-neutral-800 rounded-xl'>
+						<View>
+							<CustomText
+								className='text-neutral-100 lg'
+								variantWeight={weight.Medium}>
+								{item.clientName}
+							</CustomText>
+						</View>
 
-					<View className='flex-row justify-between items-center'>
-						<CustomText className='text-neutral-500 text-sm'>Delivery #{item.id}</CustomText>
-					</View>
+						<View className='flex-row justify-between items-center'>
+							<CustomText className='text-neutral-500 text-sm'>Delivery #{item.id}</CustomText>
+						</View>
 
-					<View className='rounded-xl self-start px-4 py-1 my-3 bg-green-600/20'>
-						<CustomText
-							className='text-green-500 text-sm capitalize'
-							variantWeight={weight.Medium}>
-							{item.status}
-						</CustomText>
-					</View>
+						<View className='rounded-xl self-start px-4 py-1 my-3 bg-green-600/20'>
+							<CustomText
+								className='text-green-500 text-sm capitalize'
+								variantWeight={weight.Medium}>
+								{item.status}
+							</CustomText>
+						</View>
 
-					<View className='mb-3'>
-						<Progress
-							value={progressValuePercentaje.value}
-							className='w-full h-2'>
-							<ProgressFilledTrack className='h-2 bg-emerald-600' />
-						</Progress>
+						<View className='mb-3'>
+							<Progress
+								value={progressValuePercentaje.value}
+								className='w-full h-2'>
+								<ProgressFilledTrack className='h-2 bg-emerald-600' />
+							</Progress>
 
-						<CustomText className='text-neutral-300 text-sm mt-1'>{progressValuePercentaje.name}</CustomText>
-					</View>
+							<CustomText className='text-neutral-300 text-sm mt-1'>
+								{progressValuePercentaje.name} {progressValuePercentaje.value}%
+							</CustomText>
+						</View>
 
-					<View>
-						<Pressable
-							className='flex-row bg-neutral-950 items-center gap-2 p-3 rounded-xl  justify-center'
-							onPress={() =>
-								router.push({
-									pathname: '/(admin)/(tabs)/service-carpets/[id]',
-									params: {
-										id: item.id,
-									},
-								})
-							}>
-							<Ionicons
-								name='create-outline'
-								size={20}
-								color='white'
-							/>
-							<CustomText className='text-neutral-100 text-sm'>Editar</CustomText>
-						</Pressable>
+						<View>
+							<Pressable
+								className='flex-row bg-neutral-950 items-center gap-2 p-3 rounded-xl  justify-center'
+								onPress={() =>
+									router.push({
+										pathname: '/(admin)/(tabs)/service-carpets/[id]',
+										params: {
+											id: item.id,
+										},
+									})
+								}>
+								<Ionicons
+									name='create-outline'
+									size={20}
+									color='white'
+								/>
+								<CustomText className='text-neutral-100 text-sm'>Editar</CustomText>
+							</Pressable>
+						</View>
 					</View>
 				</View>
-			</View>
-		);
-	}, []);
+			);
+		},
+		[ListDeliveriesFilter.data?.data]
+	);
 
 	const handleSheetChanges = useCallback(
 		(index: number) => {
@@ -155,12 +161,18 @@ export default function ServiceCarpetsScreen() {
 	);
 
 	const handleSubmitCreateDelivery = async (values: CreateServiceDelivery, formik: FormikHelpers<CreateServiceDelivery>) => {
-		await CreateDelivery.mutateAsync(values, {
-			onSuccess: () => {
-				formik.resetForm();
-				bottomSheetRef.current?.close();
+		await CreateDelivery.mutateAsync(
+			{
+				...values,
+				phone: `+51${values.phone}`,
 			},
-		});
+			{
+				onSuccess: () => {
+					formik.resetForm();
+					bottomSheetRef.current?.close();
+				},
+			}
+		);
 	};
 
 	return (
@@ -258,6 +270,20 @@ export default function ServiceCarpetsScreen() {
 													name='price'
 													onBlur={handleBlur('price')}
 													error={!!(touched.price && errors.price)}
+												/>
+											</View>
+
+											<View className='mb-3'>
+												<Input
+													label='Celular'
+													placeholder='999999999'
+													value={values.phone}
+													keyboardType='numeric'
+													onChangeText={handleChange('phone')}
+													onFocus={() => bottomSheetRef.current?.expand()}
+													name='phone'
+													onBlur={handleBlur('phone')}
+													error={!!(touched.phone && errors.phone)}
 												/>
 											</View>
 

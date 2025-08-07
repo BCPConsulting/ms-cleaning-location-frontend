@@ -11,7 +11,7 @@ export interface Appointment {
 	assignmentStatus: AssignmentStatus;
 	status: Status;
 	cleaner: User;
-	cel: string;
+	phone: string;
 }
 
 export interface CreateApppointmentRequest {
@@ -21,7 +21,7 @@ export interface CreateApppointmentRequest {
 	locationName: string;
 	locationReference: string;
 	clientName: string;
-	cel: string;
+	phone: string;
 }
 
 export interface UpdateApppointmentRequest extends CreateApppointmentRequest {
@@ -52,7 +52,7 @@ export interface AssignmentAdminResponse {
 	locationReference: string;
 	coordinates: string;
 	paymentType: PaymentType;
-	cel: string;
+	phone: string;
 }
 
 export interface AssignmentCleanerRequest {

@@ -11,6 +11,7 @@ export const useUpdateLogistic = () => {
 		onSuccess: (response) => {
 			queryClient.invalidateQueries({ queryKey: ['list-deliverys-filter'] });
 			queryClient.invalidateQueries({ queryKey: ['list-delivery'] });
+			queryClient.invalidateQueries({ queryKey: ['list-deliverys-cleaner-filter'] });
 			toastSuccess(response.message);
 		},
 

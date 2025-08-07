@@ -61,7 +61,7 @@ export default function MyAssigmenetScreen() {
 
 						<View className='mb-3'>
 							<CustomText className='text-neutral-400 text-sm'>Celular:</CustomText>
-							<CustomText className='text-neutral-100'>{item.cel}</CustomText>
+							<CustomText className='text-neutral-100'>{item.phone}</CustomText>
 						</View>
 
 						<View className='mb-3'>
@@ -91,7 +91,7 @@ export default function MyAssigmenetScreen() {
 										locationReference: item.locationReference,
 										locationName: item.locationName,
 										coordinates: item.coordinates,
-										cel: item.cel,
+										phone: item.phone,
 									},
 								})
 							}

@@ -1,15 +1,12 @@
-import Button from '@/components/ui/button';
-import { CustomText } from '@/components/ui/custom-text';
-import { Spinner } from '@/components/ui/spinner';
-import { Appointment, AssignmentAdminResponse } from '@/core/appointment/interfaces';
-import { useListAssignmentsAdmin } from '@/presentation/appoinment/hooks/use-list-assignments-admin';
-import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
-import { formatISOToDate } from '@/utils/format-iso-to-date';
-import { Ionicons } from '@expo/vector-icons';
-import { useQueryClient } from '@tanstack/react-query';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useMemo } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import MapView, { LatLng, MarkerAnimated, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { useQueryClient } from '@tanstack/react-query';
+import { Spinner } from '@/components/ui/spinner';
+import { AssignmentAdminResponse } from '@/core/appointment/interfaces';
+import { useListAssignmentsAdmin } from '@/presentation/appoinment/hooks/use-list-assignments-admin';
+import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
+import { Ionicons } from '@expo/vector-icons';
 
 const car = require('@/assets/images/minivan 3.png');
 
@@ -21,6 +18,32 @@ interface Props {
 	mapRef: React.RefObject<MapView | null>;
 	openBottomSheetDetails: (appoinment: AssignmentAdminResponse) => void;
 }
+
+const parseCoordinates = (coordinates: string | null | undefined): { latitude: number; longitude: number } | null => {
+	if (!coordinates || coordinates.trim() === '' || coordinates === 'null') {
+		return null;
+	}
+
+	try {
+		const parts = coordinates.split(',');
+
+		if (parts.length !== 2) {
+			return null;
+		}
+
+		const latitude = parseFloat(parts[0].trim());
+		const longitude = parseFloat(parts[1].trim());
+
+		if (isNaN(latitude) || isNaN(longitude)) {
+			return null;
+		}
+
+		return { latitude, longitude };
+	} catch (error) {
+		console.error('Error parsing coordinates:', coordinates, error);
+		return null;
+	}
+};
 
 const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
 	const defaultDate = useMemo(() => new Date(), []);
@@ -45,9 +68,17 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 		if (!ListAssignmentsAdmin.data?.data) return [];
 
 		return ListAssignmentsAdmin.data.data.filter((appointment) => {
-			return appointment.coordinates && appointment.coordinates.trim() !== '' && appointment.coordinates !== 'null';
+			return parseCoordinates(appointment.coordinates) !== null;
 		});
 	}, [ListAssignmentsAdmin.data?.data]);
+
+	const cleanersWithCoordinates = useMemo(() => {
+		if (!GetCleaners.data?.data) return [];
+
+		return GetCleaners.data.data.filter((cleaner) => {
+			return parseCoordinates(cleaner.coordinates) !== null;
+		});
+	}, [GetCleaners.data?.data]);
 
 	if (ListAssignmentsAdmin.isPending || GetCleaners.isPending) {
 		return (
@@ -91,7 +122,7 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 				// showsMyLocationButton={true}
 				ref={mapRef}
 				onRegionChangeComplete={(region) => onRegionChangeComplete(region)}>
-				{GetCleaners.data?.data.map((cleaner) => (
+				{cleanersWithCoordinates.map((cleaner) => (
 					<MarkerAnimated
 						key={cleaner.id}
 						coordinate={{
@@ -123,7 +154,6 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 				))}
 			</MapView>
 
-			{/* Pin fijo - AHORA relativo al contenedor del mapa */}
 			<View
 				className='absolute left-1/2 items-center justify-center'
 				style={{
@@ -145,19 +175,6 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 					/>
 				</View>
 			</View>
-
-			{/* <View
-				className='absolute top-3 left-5 bg-white/90 p-3 rounded-2xl'
-				style={{
-					shadowColor: '#000',
-					shadowOffset: { width: 0, height: 2 },
-					shadowOpacity: 0.25,
-					shadowRadius: 3.84,
-					elevation: 5,
-				}}>
-				<CustomText className='text-xs text-gray-700 font-mono'>Lat: {currentCoordinates.latitude.toFixed(4)}</CustomText>
-				<CustomText className='text-xs text-gray-700 font-mono'>Lng: {currentCoordinates.longitude.toFixed(4)}</CustomText>
-			</View> */}
 
 			<Pressable
 				onPress={() => queryClient.invalidateQueries({ queryKey: ['get-all-cleaners'] })}

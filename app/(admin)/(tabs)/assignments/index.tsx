@@ -44,89 +44,87 @@ export default function Assignments() {
 	const renderItem = useCallback(
 		({ item }: { item: AssignmentAdminResponse }) => {
 			return (
-				<>
-					<View className='w-full flex-1'>
-						<View className='p-4 bg-neutral-800 rounded-xl'>
-							<View className='flex-row items-center justify-between'>
-								<CustomText className='text-neutral-200'>#{item.id}</CustomText>
+				<View className='w-full flex-1'>
+					<View className='p-4 bg-neutral-800 rounded-xl'>
+						<View className='flex-row items-center justify-between'>
+							<CustomText className='text-neutral-200'>#{item.id}</CustomText>
 
-								<View
-									className={`${
+							<View
+								className={`${
+									item.cleaningStatus === 'PENDING'
+										? 'bg-warning/10'
+										: item.cleaningStatus === 'IN_PROGRESS'
+										? 'bg-secondary/20'
+										: 'bg-primary/20'
+								} rounded-3xl px-3 py-2 self-start`}>
+								<CustomText
+									className={`text-sm ${
 										item.cleaningStatus === 'PENDING'
-											? 'bg-warning/10'
+											? 'text-warning'
 											: item.cleaningStatus === 'IN_PROGRESS'
-											? 'bg-secondary/20'
-											: 'bg-primary/20'
-									} rounded-3xl px-3 py-2 self-start`}>
-									<CustomText
-										className={`text-sm ${
-											item.cleaningStatus === 'PENDING'
-												? 'text-warning'
-												: item.cleaningStatus === 'IN_PROGRESS'
-												? 'text-secondary'
-												: 'text-primary'
-										}`}
-										variantWeight={weight.Medium}>
-										{item.cleaningStatus === 'PENDING'
-											? 'Pendiente'
-											: item.cleaningStatus === 'IN_PROGRESS'
-											? 'En Progreso'
-											: 'Completado'}
-									</CustomText>
-								</View>
+											? 'text-secondary'
+											: 'text-primary'
+									}`}
+									variantWeight={weight.Medium}>
+									{item.cleaningStatus === 'PENDING'
+										? 'Pendiente'
+										: item.cleaningStatus === 'IN_PROGRESS'
+										? 'En Progreso'
+										: 'Completado'}
+								</CustomText>
 							</View>
-
-							{!item.cleaningStatus && (
-								<View>
-									<CustomText>{'Falta asignar un operario'}</CustomText>
-								</View>
-							)}
-
-							<View className='mb-3'>
-								<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
-								<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
-							</View>
-
-							<View className='mb-3'>
-								<CustomText className='text-neutral-400 text-sm'>Número:</CustomText>
-								<CustomText className='text-neutral-100'>{item.cel}</CustomText>
-							</View>
-
-							<View className='mb-3'>
-								<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
-								<CustomText className='text-neutral-100'>{item.detail}</CustomText>
-							</View>
-
-							<View className='mb-3'>
-								<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
-								<CustomText className='text-neutral-100'>{formatISOToDate(item.dateTime, true)}</CustomText>
-							</View>
-
-							<Button
-								text='Editar'
-								onPress={() =>
-									router.push({
-										pathname: '/(admin)/(tabs)/assignments/appoinment-admin',
-										params: {
-											id: item.id,
-											dateTime: item.dateTime.toString(),
-											assignmentStatus: item.assignmentStatus,
-											cleanerId: item.cleanner?.id,
-											detail: item.detail,
-											price: item.price,
-											cleaningStatus: item.cleaningStatus,
-											clientName: item.clientName,
-											locationReference: item.locationReference,
-											locationName: item.locationName,
-											coordinates: item.coordinates,
-											cel: item.cel,
-										},
-									})
-								}
-							/>
 						</View>
+
+						{!item.cleaningStatus && (
+							<View>
+								<CustomText>{'Falta asignar un operario'}</CustomText>
+							</View>
+						)}
+
+						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
+							<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
+						</View>
+
+						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Número:</CustomText>
+							<CustomText className='text-neutral-100'>{item.phone}</CustomText>
+						</View>
+
+						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
+							<CustomText className='text-neutral-100'>{item.detail}</CustomText>
+						</View>
+
+						<View className='mb-3'>
+							<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
+							<CustomText className='text-neutral-100'>{formatISOToDate(item.dateTime, true)}</CustomText>
+						</View>
+
+						<Button
+							text='Editar'
+							onPress={() =>
+								router.push({
+									pathname: '/(admin)/(tabs)/assignments/appoinment-admin',
+									params: {
+										id: item.id,
+										dateTime: item.dateTime.toString(),
+										assignmentStatus: item.assignmentStatus,
+										cleanerId: item.cleanner?.id,
+										detail: item.detail,
+										price: item.price,
+										cleaningStatus: item.cleaningStatus,
+										clientName: item.clientName,
+										locationReference: item.locationReference,
+										locationName: item.locationName,
+										coordinates: item.coordinates,
+										phone: item.phone,
+									},
+								})
+							}
+						/>
 					</View>
-				</>
+				</View>
 			);
 		},
 		[GetCleaners.data?.data, ListAssignmentsAdmin.data?.data, AssignmentCleaner]

@@ -103,7 +103,7 @@ export const getDeliveriesCleanerByFilter = async (values: FilterDelivery): Prom
  */
 export const getDelivery = async (deliveryId: number): Promise<ApiResponse<Delivery>> => {
 	try {
-		const { data } = await api.get(`/deliveries/${deliveryId}`);
+		const { data } = await api.get(`/deliveries/cleaner/${deliveryId}`);
 		return data;
 	} catch (error) {
 		throw error;

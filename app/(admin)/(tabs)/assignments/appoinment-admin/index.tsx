@@ -47,7 +47,7 @@ interface InitialValuesUpdate {
 	price: string;
 	detail: string;
 	cleanerId: string;
-	cel: string;
+	phone: string;
 }
 
 export default function AssignmentIdCleaner() {
@@ -63,7 +63,7 @@ export default function AssignmentIdCleaner() {
 		locationReference,
 		clientName,
 		coordinates,
-		cel,
+		phone,
 	} = useLocalSearchParams();
 	const [isOpen, onOpen, onClose] = useDisclose();
 	const { toastError } = useToast();
@@ -82,7 +82,7 @@ export default function AssignmentIdCleaner() {
 			price: price as string,
 			detail: detail as string,
 			cleanerId: cleanerId as string,
-			cel: cel as string,
+			phone: phone as string,
 		};
 	}, []);
 
@@ -97,7 +97,7 @@ export default function AssignmentIdCleaner() {
 			price: +values.price,
 			detail: values.detail,
 			cleanerId: +values.cleanerId,
-			cel: values.cel,
+			phone: values.phone,
 		});
 	};
 
@@ -160,13 +160,13 @@ export default function AssignmentIdCleaner() {
 									<View className='mb-3'>
 										<Input
 											label='Celular'
-											value={values.cel}
-											onChangeText={handleChange('cel')}
-											onBlur={handleBlur('cel')}
+											value={values.phone}
+											onChangeText={handleChange('phone')}
+											onBlur={handleBlur('phone')}
 											placeholder='Ingresar celular'
 											multiline
-											error={!!(touched.cel && errors.cel)}
-											name='cel'
+											error={!!(touched.phone && errors.phone)}
+											name='phone'
 										/>
 									</View>
 

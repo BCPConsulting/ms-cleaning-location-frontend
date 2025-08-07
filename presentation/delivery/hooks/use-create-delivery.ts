@@ -9,10 +9,8 @@ export const useCreateDelivery = () => {
 	const CreateDelivery = useMutation({
 		mutationFn: createDeliveryAction,
 		onSuccess: (response) => {
-			console.log('1. Onsucess');
 			toastSuccess('Servicio creado correctamente');
-
-			queryClient.invalidateQueries({ queryKey: ['list-deliverys'] });
+			queryClient.invalidateQueries({ queryKey: ['list-deliverys-filter'] });
 		},
 
 		onError: (error) => {

@@ -13,7 +13,7 @@ interface Props {
 
 export const Screen = ({ children, isSafeAreaInsets = true }: Props) => {
 	const insets = useSafeAreaInsets();
-	const valueSafeAreaInsets = isSafeAreaInsets ? { paddingTop: insets.top + 10 } : {};
+	const valueSafeAreaInsets = isSafeAreaInsets ? { paddingTop: insets.top + 10, paddingBottom: insets.top } : {};
 
 	return (
 		<View

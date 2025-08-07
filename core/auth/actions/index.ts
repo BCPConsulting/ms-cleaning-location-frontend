@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { api } from '@/config/api';
+import { api, apiPublic } from '@/config/api';
 import { ApiResponse, Status } from '@/core/shared/interfaces';
 import { SignInRequest, SignInResponse, SignUpRequest } from '../interfaces';
 
@@ -10,10 +10,12 @@ export const signInAction = async (values: SignInRequest): Promise<ApiResponse<S
 	const { username, password } = values;
 
 	try {
-		const { data } = await axios.post('https://ms-cleaning-location.onrender.com/api/auth/login', {
+		const { data } = await apiPublic.post('/auth/login', {
 			username: username.toLocaleLowerCase(),
 			password,
 		});
+
+		console.log('data', JSON.stringify(data, null, 2));
 
 		return data;
 	} catch (error: any) {
@@ -65,8 +67,6 @@ export const getUsers = async (values: SignInRequest): Promise<ApiResponse<SignI
 export const paymentValidationAction = async (): Promise<ApiResponse<Status>> => {
 	try {
 		const { data } = await axios.get('https://ms-cleaning-location.onrender.com/api/auth/payment-validation');
-
-		console.log('1. Values payment', JSON.stringify(data, null, 2));
 
 		return data;
 	} catch (error: any) {

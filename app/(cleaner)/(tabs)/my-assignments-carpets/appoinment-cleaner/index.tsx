@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { AppRegistry, ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Button from '@/components/ui/button';
 import ButtonBack from '@/components/ui/button-back';
@@ -52,14 +52,12 @@ export default function AssignmentIdCleaner() {
 	const delivery = listDeliveryCleanerFilter.data?.data[0];
 
 	const deliveryPickUp = delivery?.logisticEvents?.find(
-		(logistic) => logistic.cleanerId === user.id && logistic.eventType === 'PICKUP'
+		(logistic) => logistic.cleanerId === user?.id && logistic.eventType === 'PICKUP'
 	);
 
 	const deliveryShipping = delivery?.logisticEvents?.find(
-		(logistic) => logistic.cleanerId === user.id && logistic.eventType === 'SHIPPING'
+		(logistic) => logistic.cleanerId === user?.id && logistic.eventType === 'SHIPPING'
 	);
-
-	console.log('delivery', JSON.stringify(delivery, null, 2));
 
 	const handleChangeCleaningPickUp = async () => {
 		if (deliveryPickUp?.cleaningStatus === 'PENDING') {
@@ -91,6 +89,21 @@ export default function AssignmentIdCleaner() {
 				locationReference: deliveryPickUp?.locationReference,
 				cleaningStatus: 'COMPLETED',
 			});
+
+			UpdateDelivery.mutateAsync(
+				{
+					deliveryId: delivery?.deliveryId!,
+					cleaningStatus: 'IN_PROGRESS',
+					clientName: delivery?.clientName!,
+					paymentType: delivery?.paymentType!,
+					status: delivery?.status!,
+				},
+				{
+					onSuccess: () => {
+						router.back();
+					},
+				}
+			);
 			return;
 		}
 	};
@@ -170,8 +183,28 @@ export default function AssignmentIdCleaner() {
 					</CustomText>
 				</View>
 
+				<View className='flex-row gap-3'>
+					<CustomText className='text-neutral-500 mb-1'>Nombre cliente:</CustomText>
+
+					<CustomText
+						className='text-neutral-100 text-lg mb-1'
+						variantWeight={weight.Medium}>
+						{delivery.clientName}
+					</CustomText>
+				</View>
+
+				<View className='flex-row gap-3'>
+					<CustomText className='text-neutral-500 mb-1'>Celular:</CustomText>
+
+					<CustomText
+						className='text-neutral-100 text-lg mb-1'
+						variantWeight={weight.Medium}>
+						{delivery.phone}
+					</CustomText>
+				</View>
+
 				{deliveryPickUp && (
-					<View>
+					<View className='mb-5'>
 						<View className='flex-row items-center gap-3 mb-5'>
 							<CustomText className='text-neutral-100'>Recojo</CustomText>
 							<View
@@ -231,22 +264,22 @@ export default function AssignmentIdCleaner() {
 							<CustomText className='text-neutral-100'>Envio</CustomText>
 							<View
 								className={`${
-									deliveryPickUp?.cleaningStatus === 'PENDING'
+									deliveryShipping?.cleaningStatus === 'PENDING'
 										? 'bg-warning/10'
-										: deliveryPickUp?.cleaningStatus === 'IN_PROGRESS'
+										: deliveryShipping?.cleaningStatus === 'IN_PROGRESS'
 										? 'bg-secondary/20'
 										: 'bg-green-600/20'
 								} rounded-3xl px-3 py-2 self-start`}>
 								<CustomText
 									className={`text-sm ${
-										deliveryPickUp?.cleaningStatus === 'PENDING'
+										deliveryShipping?.cleaningStatus === 'PENDING'
 											? 'text-warning'
-											: deliveryPickUp?.cleaningStatus === 'IN_PROGRESS'
+											: deliveryShipping?.cleaningStatus === 'IN_PROGRESS'
 											? 'text-secondary'
 											: 'text-green-600'
 									}`}
 									variantWeight={weight.Medium}>
-									{deliveryPickUp?.cleaningStatus === 'PENDING' ? 'Pendiente' : 'En Progreso'}
+									{deliveryShipping?.cleaningStatus === 'PENDING' ? 'Pendiente' : 'En Progreso'}
 								</CustomText>
 							</View>
 						</View>
@@ -289,3 +322,5 @@ export default function AssignmentIdCleaner() {
 		</Screen>
 	);
 }
+
+AssignmentIdCleaner.displayName = 'AssignmentIdCleaner';

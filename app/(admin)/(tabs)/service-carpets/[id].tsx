@@ -6,7 +6,7 @@ import { Screen } from '@/components/ui/screen';
 import { Spinner } from '@/components/ui/spinner';
 import { useGetDelivery } from '@/presentation/delivery/hooks/use-get-delivery';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
-import { ChevronDownIcon } from '@/components/ui/icon';
+import { ChevronDownIcon, CircleIcon } from '@/components/ui/icon';
 import { paymentTypeReturnData } from '@/utils/payment-type-return-data';
 import {
 	Select,
@@ -26,28 +26,15 @@ import { Formik, FormikHelpers } from 'formik';
 import Input from '@/components/ui/input';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useCreateLogistic } from '@/presentation/logistic-event/hooks/use-create-logistic-event';
-import { CircleIcon } from '@/components/ui/icon';
 import { useKeyboard } from '@/hooks/use-key-board';
 import validationCreateLogisticEvent from '@/presentation/logistic-event/validation/create-logistic-event-validation';
-import { CreateLogisticEvent } from '@/core/logistic-event/interfaces';
-import { AssignmentStatus, LogisticEventType } from '@/core/shared/interfaces';
+import { FormLogisticEvent } from '@/core/logistic-event/interfaces';
 import { MapViewContextApi } from '@/context/map-view-context';
 import { useUpdateLogistic } from '@/presentation/logistic-event/hooks/use-update-logistic-event';
 import { useToast } from '@/hooks/use-toast';
 import { Colors } from '@/constants/Colors';
 import { statusReturnTypeData } from '@/utils/status-type-return-data';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-
-interface FormLogisticEvent {
-	eventType: LogisticEventType;
-	coordinates: string;
-	locationName: string;
-	locationReference: string;
-	cleanerId: string;
-	deliveryId: string;
-	assignmentStatus: AssignmentStatus;
-	dateTime: string;
-}
 
 const InitialValueLogisticEvent: FormLogisticEvent = {
 	eventType: 'PICKUP',
@@ -170,6 +157,7 @@ export default function EditService() {
 				assignmentStatus: values.cleanerId ? 'ASSIGNED' : 'UNASSIGNED',
 				locationName: values.locationName,
 				locationReference: values.locationReference,
+				cleaningStatus: 'PENDING',
 				cleanerId: values.cleanerId,
 				coordinates: `${currentCoordinates.latitude},${currentCoordinates.longitude}`,
 				dateTime: isoDateTime,
@@ -189,6 +177,7 @@ export default function EditService() {
 				assignmentStatus: values.cleanerId ? 'ASSIGNED' : 'UNASSIGNED',
 				locationName: values.locationName,
 				locationReference: values.locationReference,
+				cleaningStatus: 'PENDING',
 				cleanerId: values.cleanerId,
 				coordinates: `${currentCoordinates.latitude},${currentCoordinates.longitude}`,
 				dateTime: isoDateTime,
@@ -210,7 +199,7 @@ export default function EditService() {
 	);
 
 	const handleSubmitCreateLogisticEvent = useCallback(
-		(values: CreateLogisticEvent, formik: FormikHelpers<CreateLogisticEvent>) => {
+		(values: FormLogisticEvent, formik: FormikHelpers<FormLogisticEvent>) => {
 			const existingEventLogicPickup = GetDelivery.data?.data.logisticEvents.find(
 				(logistic) => logistic.eventType === 'PICKUP'
 			);
@@ -237,6 +226,7 @@ export default function EditService() {
 				assignmentStatus: values.cleanerId ? 'ASSIGNED' : 'UNASSIGNED',
 				locationName: values.locationName,
 				locationReference: values.locationReference,
+				cleaningStatus: 'PENDING',
 				cleanerId: values.cleanerId,
 				coordinates: `${currentCoordinates.latitude},${currentCoordinates.longitude}`,
 				dateTime: isoDateTime,
@@ -298,11 +288,25 @@ export default function EditService() {
 							</View>
 						</View>
 
-						<CustomText
-							className='text-neutral-100 text-lg mb-1'
-							variantWeight={weight.Medium}>
-							{delivery.clientName}
-						</CustomText>
+						<View className='flex-row gap-3'>
+							<CustomText className='text-neutral-500 mb-1'>Nombre cliente:</CustomText>
+
+							<CustomText
+								className='text-neutral-100 text-lg mb-1'
+								variantWeight={weight.Medium}>
+								{delivery.clientName}
+							</CustomText>
+						</View>
+
+						<View className='flex-row gap-3'>
+							<CustomText className='text-neutral-500 mb-1'>Celular:</CustomText>
+
+							<CustomText
+								className='text-neutral-100 text-lg mb-1'
+								variantWeight={weight.Medium}>
+								{delivery.phone}
+							</CustomText>
+						</View>
 
 						<CustomText
 							className='text-green-400 text-xl'

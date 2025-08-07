@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getDeliveries, getDeliveriesByFilter } from '@/core/delivery/actions';
+import { getDeliveriesByFilter } from '@/core/delivery/actions';
 import { FilterDelivery } from '@/core/delivery/interfaces';
 
 export const useListDeliveryFilter = (values: FilterDelivery) => {

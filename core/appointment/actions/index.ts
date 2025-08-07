@@ -34,7 +34,7 @@ export const updateAppoinmentAction = async (values: UpdateApppointmentRequest):
 		const { data } = await api.put(`/appointments/${values.appoinmentId}`, {
 			dateTime: values.dateTime,
 			coordinates: values.coordinates,
-			cel: values.cel,
+			phone: values.phone,
 			price: values.price,
 			detail: values.detail,
 			cleanerId: values.cleanerId,
@@ -68,8 +68,6 @@ export const getAppoinmentIdAction = async (appoinmentId: number): Promise<ApiRe
 export const getAssignmentsOwnerAction = async (
 	values: FilterAssignmentAdminRequest
 ): Promise<ApiResponse<AssignmentAdminResponse[]>> => {
-	console.log('values', JSON.stringify(values, null, 2));
-
 	try {
 		const { data } = await api.get('/appointments/owner/filter-paged', {
 			params: {
@@ -81,6 +79,9 @@ export const getAssignmentsOwnerAction = async (
 				cleanerId: values.cleanerId,
 			},
 		});
+
+		console.log('data', JSON.stringify(data, null, 2));
+
 		return data;
 	} catch (error) {
 		throw error;

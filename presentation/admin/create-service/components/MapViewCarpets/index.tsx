@@ -4,7 +4,7 @@ import { useListLogisticEvent } from '@/presentation/logistic-event/hooks/use-li
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
 import { Ionicons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useMemo } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import MapView, { LatLng, MarkerAnimated, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 
@@ -18,6 +18,32 @@ interface Props {
 	mapRef: React.RefObject<MapView | null>;
 	openBottomSheetDetails: (appoinment: LogisticEvent) => void;
 }
+
+const parseCoordinates = (coordinates: string | null | undefined): { latitude: number; longitude: number } | null => {
+	if (!coordinates || coordinates.trim() === '' || coordinates === 'null') {
+		return null;
+	}
+
+	try {
+		const parts = coordinates.split(',');
+
+		if (parts.length !== 2) {
+			return null;
+		}
+
+		const latitude = parseFloat(parts[0].trim());
+		const longitude = parseFloat(parts[1].trim());
+
+		if (isNaN(latitude) || isNaN(longitude)) {
+			return null;
+		}
+
+		return { latitude, longitude };
+	} catch (error) {
+		console.error('Error parsing coordinates:', coordinates, error);
+		return null;
+	}
+};
 
 const MapViewCarpets = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
 	const { ListLogisticEvent } = useListLogisticEvent();
@@ -38,9 +64,17 @@ const MapViewCarpets = memo(({ currentCoordinates, handleSetCoordinates, mapRef,
 		if (!ListLogisticEvent.data?.data) return [];
 
 		return ListLogisticEvent.data.data.filter((logistic) => {
-			return logistic.coordinates && logistic.coordinates.trim() !== '' && logistic.coordinates !== 'null';
+			return parseCoordinates(logistic.coordinates) !== null;
 		});
 	}, [ListLogisticEvent.data?.data]);
+
+	const cleanersWithCoordinates = useMemo(() => {
+		if (!GetCleaners.data?.data) return [];
+
+		return GetCleaners.data.data.filter((cleaner) => {
+			return parseCoordinates(cleaner.coordinates) !== null;
+		});
+	}, [GetCleaners.data?.data]);
 
 	if (ListLogisticEvent.isPending || GetCleaners.isPending) {
 		return (
@@ -84,7 +118,7 @@ const MapViewCarpets = memo(({ currentCoordinates, handleSetCoordinates, mapRef,
 				// showsMyLocationButton={true}
 				ref={mapRef}
 				onRegionChangeComplete={(region) => onRegionChangeComplete(region)}>
-				{GetCleaners.data?.data.map((cleaner) => (
+				{cleanersWithCoordinates.map((cleaner) => (
 					<MarkerAnimated
 						key={cleaner.id}
 						coordinate={{

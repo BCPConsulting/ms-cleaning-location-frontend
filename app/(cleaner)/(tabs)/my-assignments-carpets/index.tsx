@@ -7,8 +7,7 @@ import Button from '@/components/ui/button';
 import { useAuthStore } from '@/presentation/auth/store/use-auth-store';
 import { useUpdateCoordinates } from '@/presentation/user/hooks/use-update-coordinates';
 import { useGetCurrentLocation } from '@/presentation/user/hooks/use-get-current-location';
-import { useListDeliveryFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter';
-import { Delivery, DeliveryFilter } from '@/core/delivery/interfaces';
+import { DeliveryFilter } from '@/core/delivery/interfaces';
 import { useListDeliveryCleanerFilter } from '@/presentation/delivery/hooks/use-list-delivery-filter copy';
 
 //!![FIXED]: Obtener las coordenadas con una precision exacta
@@ -44,7 +43,7 @@ export default function MyAssigmenetScreen() {
 						<View className='flex-row items-center justify-between'>
 							<CustomText className='text-neutral-200'>#{item.deliveryId}</CustomText>
 
-							<View
+							{/* <View
 								className={`${
 									item.cleaningStatus === 'PENDING' ? 'bg-warning/10' : 'bg-secondary/20'
 								} rounded-3xl px-3 py-2 self-start`}>
@@ -55,7 +54,7 @@ export default function MyAssigmenetScreen() {
 										? 'Pendiente'
 										: item.cleaningStatus === 'IN_PROGRESS' && 'En Progreso'}
 								</CustomText>
-							</View>
+							</View> */}
 						</View>
 
 						<View className='mb-3'>

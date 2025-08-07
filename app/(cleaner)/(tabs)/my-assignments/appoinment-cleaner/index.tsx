@@ -25,8 +25,18 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronDownIcon } from '@/components/ui/icon';
 
 export default function AssignmentIdCleaner() {
-	const { id, dateTime, assignmentStatus, cleanerId, detail, cleaningStatus, clientName, locationName, locationReference, cel } =
-		useLocalSearchParams();
+	const {
+		id,
+		dateTime,
+		assignmentStatus,
+		cleanerId,
+		detail,
+		cleaningStatus,
+		clientName,
+		locationName,
+		locationReference,
+		phone,
+	} = useLocalSearchParams();
 	const { toastError } = useToast();
 	const [paymentType, setPaymentType] = useState<PaymentType | null>(null);
 	const { ChangeInProgress } = useChangeInProgress();
@@ -83,8 +93,8 @@ export default function AssignmentIdCleaner() {
 				</View>
 
 				<View className='mb-3'>
-					<CustomText className='text-neutral-400 text-sm'>Nombre celular:</CustomText>
-					<CustomText className='text-neutral-100'>{cel}</CustomText>
+					<CustomText className='text-neutral-400 text-sm'>Celular:</CustomText>
+					<CustomText className='text-neutral-100'>{phone}</CustomText>
 				</View>
 
 				<View className='mb-3'>
