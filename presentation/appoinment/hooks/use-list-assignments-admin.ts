@@ -23,6 +23,7 @@ export const useListAssignmentsAdmin = (values: FilterAssignmentAdminRequest) =>
 				return getAssignmentsOwnerAction(formattedValues);
 			}
 		},
+		refetchOnMount: true,
 	});
 
 	return {

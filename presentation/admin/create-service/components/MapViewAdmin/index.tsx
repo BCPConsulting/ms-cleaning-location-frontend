@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
-import MapView, { LatLng, MarkerAnimated, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { LatLng, Marker, MarkerAnimated, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { useQueryClient } from '@tanstack/react-query';
 import { Spinner } from '@/components/ui/spinner';
 import { AssignmentAdminResponse } from '@/core/appointment/interfaces';
@@ -17,6 +17,7 @@ interface Props {
 	handleSetCoordinates: (latitude: number, longitude: number) => void;
 	mapRef: React.RefObject<MapView | null>;
 	openBottomSheetDetails: (appoinment: AssignmentAdminResponse) => void;
+	searchMarker: LatLng | null;
 }
 
 const parseCoordinates = (coordinates: string | null | undefined): { latitude: number; longitude: number } | null => {
@@ -45,7 +46,7 @@ const parseCoordinates = (coordinates: string | null | undefined): { latitude: n
 	}
 };
 
-const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails }: Props) => {
+const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, openBottomSheetDetails, searchMarker }: Props) => {
 	const defaultDate = useMemo(() => new Date(), []);
 	const { ListAssignmentsAdmin } = useListAssignmentsAdmin({
 		from: defaultDate,
@@ -153,6 +154,15 @@ const MapViewAdmin = memo(({ currentCoordinates, handleSetCoordinates, mapRef, o
 						title={`${appoinment.clientName}`}
 					/>
 				))}
+
+				{searchMarker && (
+					<Marker
+						coordinate={searchMarker}
+						pinColor='blue'
+						title='Ubicación buscada'
+						description='Resultado de búsqueda'
+					/>
+				)}
 			</MapView>
 
 			<View

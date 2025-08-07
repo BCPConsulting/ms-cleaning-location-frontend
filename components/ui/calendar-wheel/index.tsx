@@ -80,6 +80,7 @@ export default function CalendarWheel({
 			onSubmit({
 				date: selectedDate,
 				formatted: `${selectedYear}-${selectedMonth + 1}-${effectiveDay}`,
+				formattedReversedSlash: `${effectiveDay}/${selectedMonth + 1}/${selectedYear}`,
 				day: effectiveDay,
 				month: selectedMonth,
 				monthName: monthNames[selectedMonth],

@@ -22,6 +22,7 @@ export interface CreateApppointmentRequest {
 	locationReference: string;
 	clientName: string;
 	phone: string;
+	dateTime: string;
 }
 
 export interface UpdateApppointmentRequest extends CreateApppointmentRequest {

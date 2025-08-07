@@ -26,6 +26,35 @@ const initialValue: CreateApppointmentRequest = {
 	locationName: '',
 	locationReference: '',
 	phone: '',
+	dateTime: '',
+};
+
+export const formatDateTimeWithPeruTime = (dateTime?: string): string => {
+	const now = new Date();
+
+	// Obtener solo la hora en zona horaria de Perú
+	const peruTime = now.toLocaleTimeString('en-GB', {
+		timeZone: 'America/Lima',
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+	});
+
+	if (dateTime) {
+		// Si envía fecha, combinar con hora actual peruana
+		return `${dateTime} ${peruTime}`;
+	} else {
+		// Si no envía fecha, obtener fecha completa en zona horaria de Perú
+		const peruDate = now.toLocaleDateString('en-GB', {
+			timeZone: 'America/Lima',
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+		});
+
+		// Convertir de DD/MM/YYYY a DD/MM/YYYY
+		return `${peruDate} ${peruTime}`;
+	}
 };
 
 export default function CreateServiceScreen() {
@@ -35,6 +64,7 @@ export default function CreateServiceScreen() {
 	const [appointment, setAppointment] = useState<AssignmentAdminResponse>({} as AssignmentAdminResponse);
 	const { isKeyboardVisible, dismissKeyboard } = useKeyboard();
 	const [currentIndex, setCurrentIndex] = useState(1);
+	const [searchMarker, setSearchMarker] = useState<LatLng | null>(null);
 	const [currentCoordinates, setCurrentCoordinates] = useState<LatLng>({
 		latitude: -12.0464, // Lima, Perú
 		longitude: -77.0428,
@@ -63,6 +93,11 @@ export default function CreateServiceScreen() {
 			longitudeDelta: 0.01,
 		};
 
+		setSearchMarker({
+			latitude: location.latitude,
+			longitude: location.longitude,
+		});
+
 		mapRef.current?.animateToRegion(coordinates);
 	}, []);
 
@@ -75,6 +110,7 @@ export default function CreateServiceScreen() {
 			locationName: values.locationName,
 			locationReference: values.locationReference,
 			phone: values.phone,
+			dateTime: values.dateTime,
 		});
 
 		formik.resetForm();
@@ -141,6 +177,7 @@ export default function CreateServiceScreen() {
 				currentCoordinates={currentCoordinates}
 				handleSetCoordinates={handleSetCoordinates}
 				openBottomSheetDetails={openBottomSheetDetails}
+				searchMarker={searchMarker}
 			/>
 
 			<View className='absolute bottom-0 w-full px-4 mb-4'>
@@ -175,7 +212,7 @@ export default function CreateServiceScreen() {
 							}}>
 							<Formik
 								initialValues={initialValue}
-								// validationSchema={validationCreateAppoinment}
+								validationSchema={validationCreateAppoinment}
 								onSubmit={(values, formik) => handleCreateService(values, formik)}>
 								{({ values, handleSubmit, handleChange, handleBlur, touched, errors }) => (
 									<View>
@@ -242,6 +279,18 @@ export default function CreateServiceScreen() {
 												name='price'
 												onBlur={handleBlur('price')}
 												error={!!(touched.price && errors.price)}
+											/>
+										</View>
+
+										<View className='mb-3'>
+											<Input
+												label='Fecha y Hora'
+												value={values.dateTime}
+												onChangeText={handleChange('dateTime')}
+												onBlur={handleBlur('dateTime')}
+												placeholder='dd/mm/yyyy hh:mm'
+												error={!!(errors?.dateTime && touched?.dateTime)}
+												name='dateTime'
 											/>
 										</View>
 

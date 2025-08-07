@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Button from '@/components/ui/button';
 import ButtonBack from '@/components/ui/button-back';
 import { CustomText, weight } from '@/components/ui/custom-text';
 import { Screen } from '@/components/ui/screen';
-import { formatISOToDate } from '@/utils/format-iso-to-date';
 import {
 	Select,
 	SelectTrigger,
@@ -28,10 +27,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ChevronDownIcon } from '@/components/ui/icon';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
-import { useAssignmentCleaner } from '@/presentation/appoinment/hooks/use-assignment-cleaner';
 import { useUpdateAppoinment } from '@/presentation/appoinment/hooks/use-update-appoinment';
 import Input from '@/components/ui/input';
-import { Ionicons } from '@expo/vector-icons';
 import { useDisclose } from '@/hooks/use-disclose';
 import CalendarWheel from '@/components/ui/calendar-wheel';
 import { Formik, FormikHelpers } from 'formik';
@@ -49,6 +46,33 @@ interface InitialValuesUpdate {
 	cleanerId: string;
 	phone: string;
 }
+
+export const formatDateTimeWithPeruTime = (dateTime?: string): string => {
+	if (dateTime && dateTime.includes('/')) {
+		// Si ya viene en formato dd/mm/yyyy hh:mm, devolverlo tal como está
+		return dateTime;
+	}
+
+	const now = new Date();
+	const peruTime = now.toLocaleTimeString('en-GB', {
+		timeZone: 'America/Lima',
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+	});
+
+	if (dateTime) {
+		return `${dateTime} ${peruTime}`;
+	} else {
+		const peruDate = now.toLocaleDateString('en-GB', {
+			timeZone: 'America/Lima',
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+		});
+		return `${peruDate} ${peruTime}`;
+	}
+};
 
 export default function AssignmentIdCleaner() {
 	const {
@@ -73,8 +97,20 @@ export default function AssignmentIdCleaner() {
 	const { DeleteAppointment } = useDeleteAppointment();
 
 	const initialValues: InitialValuesUpdate = useMemo(() => {
+		const formatISOToDisplayFormat = (isoString: string): string => {
+			const date = new Date(isoString);
+
+			const day = String(date.getDate()).padStart(2, '0');
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const year = date.getFullYear();
+			const hours = String(date.getHours()).padStart(2, '0');
+			const minutes = String(date.getMinutes()).padStart(2, '0');
+
+			return `${day}/${month}/${year} ${hours}:${minutes}`;
+		};
+
 		return {
-			dateTime: dateTime as string,
+			dateTime: dateTime ? formatISOToDisplayFormat(dateTime as string) : '',
 			clientName: clientName as string,
 			locationName: locationName as string,
 			locationReference: locationReference as string,
@@ -84,12 +120,24 @@ export default function AssignmentIdCleaner() {
 			cleanerId: cleanerId as string,
 			phone: phone as string,
 		};
-	}, []);
+	}, [dateTime, clientName, locationName, locationReference, coordinates, price, detail, cleanerId, phone]);
+
+	console.log('Values', {
+		dateTime,
+		clientName,
+		locationName,
+		locationReference,
+		coordinates,
+		price,
+		detail,
+		cleanerId,
+		phone,
+	});
 
 	const handleUpdateAppoinment = async (values: InitialValuesUpdate, formik: FormikHelpers<InitialValuesUpdate>) => {
 		UpdateAppoinment.mutate({
 			appoinmentId: +id,
-			dateTime: values.dateTime,
+			dateTime: formatDateTimeWithPeruTime(values.dateTime),
 			clientName: values.clientName,
 			locationName: values.locationName,
 			locationReference: values.locationReference,
@@ -224,6 +272,18 @@ export default function AssignmentIdCleaner() {
 									</View>
 
 									<View className='mb-3'>
+										<Input
+											label='Fecha y Hora'
+											value={values.dateTime}
+											onChangeText={handleChange('dateTime')}
+											onBlur={handleBlur('dateTime')}
+											placeholder='dd/mm/yyyy hh:mm'
+											error={!!(errors?.dateTime && touched?.dateTime)}
+											name='dateTime'
+										/>
+									</View>
+
+									<View className='mb-3'>
 										<CustomText className='text-[#d4d4d4] text-sm mb-1'>Asignar operario</CustomText>
 
 										<Select
@@ -283,36 +343,6 @@ export default function AssignmentIdCleaner() {
 												{errors.cleanerId}
 											</CustomText>
 										) : null}
-									</View>
-
-									<View className='mb-3'>
-										<CustomText className='text-[#d4d4d4] mb-2'>Fecha</CustomText>
-										<Pressable
-											className='flex-row items-center gap-3 flex-1'
-											style={{
-												paddingHorizontal: 24,
-												paddingVertical: 12,
-												borderRadius: 12,
-												justifyContent: 'center',
-												alignItems: 'center',
-												backgroundColor: '#262626',
-												borderWidth: 1,
-												borderColor: '#404040',
-											}}
-											onPress={() => onOpen()}>
-											<Ionicons
-												name='calendar-outline'
-												size={20}
-												color='#d4d4d4'
-											/>
-											<View className='flex-row items-cemter flex-1'>
-												<CustomText
-													variantWeight={weight.Medium}
-													className='text-neutral-300 text-sm'>
-													{formatISOToDate(values.dateTime)}
-												</CustomText>
-											</View>
-										</Pressable>
 									</View>
 
 									<Actionsheet

@@ -30,8 +30,6 @@ export default function MyAssigmenetScreen() {
 
 	const keyExtractor = useCallback((item: { id: number }) => item.id.toString(), []);
 
-	console.log('ListAssignmentsCleaner', JSON.stringify(ListAssignmentsCleaner.data?.data, null, 2));
-
 	const renderItem = useCallback(({ item }: { item: AssignmentAdminResponse }) => {
 		return (
 			<>

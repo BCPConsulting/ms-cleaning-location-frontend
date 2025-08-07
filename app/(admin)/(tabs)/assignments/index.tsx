@@ -10,6 +10,18 @@ import {
 	ActionsheetDragIndicatorWrapper,
 	ActionsheetBackdrop,
 } from '@/components/ui/actionsheet';
+import {
+	Select,
+	SelectTrigger,
+	SelectInput,
+	SelectIcon,
+	SelectPortal,
+	SelectBackdrop,
+	SelectContent,
+	SelectDragIndicator,
+	SelectDragIndicatorWrapper,
+	SelectItem,
+} from '@/components/ui/select';
 import { useListAssignmentsAdmin } from '@/presentation/appoinment/hooks/use-list-assignments-admin';
 import CalendarWheel from '@/components/ui/calendar-wheel';
 import { useDisclose } from '@/hooks/use-disclose';
@@ -18,6 +30,7 @@ import { AssignmentAdminResponse } from '@/core/appointment/interfaces';
 import { formatISOToDate } from '@/utils/format-iso-to-date';
 import { useGetAllCleaners } from '@/presentation/user/hooks/use-get-all-cleaners';
 import { useAssignmentCleaner } from '@/presentation/appoinment/hooks/use-assignment-cleaner';
+import { ChevronDownIcon } from '@/components/ui/icon';
 import Button from '@/components/ui/button';
 
 //! [FIXED]: Falta agregar loaders para mejorar la experiencia de usuario
@@ -32,7 +45,7 @@ export default function Assignments() {
 	const { AssignmentCleaner } = useAssignmentCleaner();
 	const { GetCleaners } = useGetAllCleaners();
 
-	console.log('ListAssignmentsAdmins', JSON.stringify(ListAssignmentsAdmin.data?.data, null, 2));
+	console.log('VAlues', JSON.stringify(ListAssignmentsAdmin.data?.data, null, 2));
 
 	const handlePresentModalPress = useCallback((timeType: 'start' | 'end') => {
 		onOpen();
@@ -41,98 +54,148 @@ export default function Assignments() {
 
 	const keyExtractor = useCallback((item: { id: number }) => item.id.toString(), []);
 
-	const renderItem = useCallback(
-		({ item }: { item: AssignmentAdminResponse }) => {
-			return (
-				<View
-					className='w-full'
-					style={{
-						flex: 1,
-					}}>
-					<View className='p-4 bg-neutral-800 rounded-xl'>
-						<View className='flex-row items-center justify-between'>
-							<CustomText className='text-neutral-200'>#{item.id}</CustomText>
+	const renderItem = ({ item }: { item: AssignmentAdminResponse }) => {
+		return (
+			<View
+				className='w-full'
+				style={{
+					flex: 1,
+				}}>
+				<View className='p-4 bg-neutral-800 rounded-xl'>
+					<View className='flex-row items-center justify-between'>
+						<CustomText className='text-neutral-200'>#{item.id}</CustomText>
 
-							<View
-								className={`${
+						<View
+							className={`${
+								item.cleaningStatus === 'PENDING'
+									? 'bg-warning/10'
+									: item.cleaningStatus === 'IN_PROGRESS'
+									? 'bg-secondary/20'
+									: 'bg-primary/20'
+							} rounded-3xl px-3 py-2 self-start`}>
+							<CustomText
+								className={`text-sm ${
 									item.cleaningStatus === 'PENDING'
-										? 'bg-warning/10'
+										? 'text-warning'
 										: item.cleaningStatus === 'IN_PROGRESS'
-										? 'bg-secondary/20'
-										: 'bg-primary/20'
-								} rounded-3xl px-3 py-2 self-start`}>
-								<CustomText
-									className={`text-sm ${
-										item.cleaningStatus === 'PENDING'
-											? 'text-warning'
-											: item.cleaningStatus === 'IN_PROGRESS'
-											? 'text-secondary'
-											: 'text-primary'
-									}`}
-									variantWeight={weight.Medium}>
-									{item.cleaningStatus === 'PENDING'
-										? 'Pendiente'
-										: item.cleaningStatus === 'IN_PROGRESS'
-										? 'En Progreso'
-										: 'Completado'}
-								</CustomText>
-							</View>
+										? 'text-secondary'
+										: 'text-primary'
+								}`}
+								variantWeight={weight.Medium}>
+								{item.cleaningStatus === 'PENDING'
+									? 'Pendiente'
+									: item.cleaningStatus === 'IN_PROGRESS'
+									? 'En Progreso'
+									: 'Completado'}
+							</CustomText>
 						</View>
-
-						{!item.cleaningStatus && (
-							<View>
-								<CustomText>{'Falta asignar un operario'}</CustomText>
-							</View>
-						)}
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
-							<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
-						</View>
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Número:</CustomText>
-							<CustomText className='text-neutral-100'>{item.phone}</CustomText>
-						</View>
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
-							<CustomText className='text-neutral-100'>{item.detail}</CustomText>
-						</View>
-
-						<View className='mb-3'>
-							<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
-							<CustomText className='text-neutral-100'>{formatISOToDate(item.dateTime, true)}</CustomText>
-						</View>
-
-						<Button
-							text='Editar'
-							onPress={() =>
-								router.push({
-									pathname: '/(admin)/(tabs)/assignments/appoinment-admin',
-									params: {
-										id: item.id,
-										dateTime: item.dateTime.toString(),
-										assignmentStatus: item.assignmentStatus,
-										cleanerId: item.cleanner?.id,
-										detail: item.detail,
-										price: item.price,
-										cleaningStatus: item.cleaningStatus,
-										clientName: item.clientName,
-										locationReference: item.locationReference,
-										locationName: item.locationName,
-										coordinates: item.coordinates,
-										phone: item.phone,
-									},
-								})
-							}
-						/>
 					</View>
+
+					{!item.cleaningStatus && (
+						<View>
+							<CustomText>{'Falta asignar un operario'}</CustomText>
+						</View>
+					)}
+
+					<View className='mb-3'>
+						<CustomText className='text-neutral-400 text-sm'>Nombre cliente:</CustomText>
+						<CustomText className='text-neutral-100'>{item.clientName}</CustomText>
+					</View>
+
+					<View className='mb-3'>
+						<CustomText className='text-neutral-400 text-sm'>Número:</CustomText>
+						<CustomText className='text-neutral-100'>{item.phone}</CustomText>
+					</View>
+
+					<View className='mb-3'>
+						<CustomText className='text-neutral-400 text-sm'>Detalles:</CustomText>
+						<CustomText className='text-neutral-100'>{item.detail}</CustomText>
+					</View>
+
+					<View className='mb-3'>
+						<CustomText className='text-neutral-400 text-sm mb-1'>Asignar operario</CustomText>
+
+						<Select
+							key={`select-${item.id}-${item?.cleanner?.id || 'unassigned'}-${Date.now()}`}
+							selectedValue={item?.cleanner?.id?.toString()}
+							defaultValue={item?.cleanner?.id?.toString()}
+							initialLabel={item?.cleanner?.username}
+							onValueChange={(cleanerId) =>
+								AssignmentCleaner.mutate({
+									cleanerId: +cleanerId,
+									appoinmentId: item.id,
+								})
+							}>
+							<SelectTrigger
+								className='justify-between'
+								variant='rounded'
+								size='md'>
+								<SelectTrigger style={{ borderWidth: 0 }}>
+									<SelectInput
+										placeholder='Seleccionar un operario'
+										placeholderTextColor={'#8c8c90'}
+									/>
+									<SelectIcon className='mr-3' />
+								</SelectTrigger>
+								<SelectIcon
+									className='mr-3'
+									as={ChevronDownIcon}
+								/>
+							</SelectTrigger>
+							<SelectPortal>
+								<SelectBackdrop />
+								<SelectContent>
+									<SelectDragIndicatorWrapper>
+										<SelectDragIndicator />
+									</SelectDragIndicatorWrapper>
+									<SelectItem
+										label='-- Seleccionar --'
+										value=''
+									/>
+
+									{GetCleaners.data?.data.map((cleaner) => (
+										<SelectItem
+											key={cleaner.id}
+											label={cleaner.username}
+											value={cleaner?.id?.toString()!}
+										/>
+									))}
+								</SelectContent>
+							</SelectPortal>
+						</Select>
+					</View>
+
+					<View className='mb-3'>
+						<CustomText className='text-neutral-400 text-sm'>Fecha:</CustomText>
+						<CustomText className='text-neutral-100'>{formatISOToDate(item.dateTime, true)}</CustomText>
+					</View>
+
+					<Button
+						text='Editar'
+						onPress={() =>
+							router.push({
+								pathname: '/(admin)/(tabs)/assignments/appoinment-admin',
+								params: {
+									id: item.id,
+									dateTime: item.dateTime.toString(),
+									assignmentStatus: item.assignmentStatus,
+									cleanerId: item.cleanner?.id,
+									detail: item.detail,
+									price: item.price,
+									cleaningStatus: item.cleaningStatus,
+									clientName: item.clientName,
+									locationReference: item.locationReference,
+									locationName: item.locationName,
+									coordinates: item.coordinates,
+									phone: item.phone,
+								},
+							})
+						}
+					/>
 				</View>
-			);
-		},
-		[GetCleaners.data?.data, ListAssignmentsAdmin.data?.data, AssignmentCleaner]
-	);
+			</View>
+		);
+	};
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);

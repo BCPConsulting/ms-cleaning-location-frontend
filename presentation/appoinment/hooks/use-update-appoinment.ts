@@ -10,6 +10,7 @@ export const useUpdateAppoinment = () => {
 		mutationFn: updateAppoinmentAction,
 		onSuccess: (response) => {
 			queryClient.invalidateQueries({ queryKey: ['list-assignments-admin'] });
+			queryClient.invalidateQueries({ queryKey: ['get-all-cleaners'] });
 			toastSuccess(response.message);
 		},
 
