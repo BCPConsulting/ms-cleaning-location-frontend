@@ -3,14 +3,14 @@ import * as SecureStore from 'expo-secure-store';
 
 // ✅ API con autenticación (para endpoints protegidos)
 export const api = axios.create({
-	baseURL: 'http://192.168.18.8:8080/api',
-	// baseURL: 'https://ms-cleaning-location.onrender.com/api',
+	// baseURL: 'http://192.168.18.8:8080/api',
+	baseURL: 'https://ms-cleaning-location.onrender.com/api',
 });
 
 // ✅ API pública (para login, registro, etc.)
 export const apiPublic = axios.create({
-	baseURL: 'http://192.168.18.8:8080/api',
-	// baseURL: 'https://ms-cleaning-location.onrender.com/api',
+	// baseURL: 'http://192.168.18.8:8080/api',
+	baseURL: 'https://ms-cleaning-location.onrender.com/api',
 });
 
 // Interceptor solo para API autenticada
