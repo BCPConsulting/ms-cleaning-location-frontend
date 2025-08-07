@@ -37,8 +37,6 @@ export default function Page() {
 
 	// 🔄 2. SEGUNDO: Validar pago SOLO si hay sesión válida
 	useEffect(() => {
-		if (!sessionLoaded) return;
-
 		const checkPaymentValidation = async () => {
 			try {
 				setIsPaymentLoading(true);
